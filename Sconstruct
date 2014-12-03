@@ -1,0 +1,52 @@
+# Teil 1: Optionen
+include_dateien = [ # wo wird nach .h Dateien gesucht?
+  '.', # im lokalen Verzeichnis
+  './external/glm-0.9.4.0'
+]
+
+shared_libraries = [
+  'glfw3',
+  'GLU',
+  'GL',
+  'Xrandr',
+  'Xext',
+  'Xxf86vm',
+  'X11', 
+  'Xinerama',
+  'Xi',
+  'Xcursor',
+  'rt',
+  'pthread',
+  'm',
+  'GLEW',
+  'SOIL'
+]
+
+cpp_standard = [ # Angaben zum Standard
+  '-std=c++11', # ISO/IEC Standard 14882
+  #'-pedantic' # keine Erweiterungen zulaessig
+]
+
+warnungen = [ # Einstellungen zu Fehlern
+  '-Wall', # viel meckern
+  '-Wextra', # extra viel meckern
+  '-Werror' # Warnungen sind Fehler
+]
+
+# Teil 2: Definition des Environments
+std = Environment(
+  CXXFLAGS = cpp_standard + warnungen,
+  CPPPATH = include_dateien,
+  LIBS = shared_libraries,
+  LIBPATH = ['/usr/lib64/']
+)
+#std.StaticLibrary(target = 'libSOIL', source = ['./external/soil/lib/libSOIL.a'])
+
+# Teil 3: Programm bauen
+cpp_dateien = [
+  'file_controller.cpp',
+  'main.cpp',
+]
+
+programm_name = 'opengl'
+std.Program(programm_name, cpp_dateien) # Programm bauen
