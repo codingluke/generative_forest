@@ -5,8 +5,8 @@ include_dateien = [ # wo wird nach .h Dateien gesucht?
 ]
 
 shared_libraries = [
-  'glfw3',
-  'GLU',
+  #'glfw3',
+  #'GLU',
   'GL',
   'Xrandr',
   'Xext',
@@ -15,11 +15,13 @@ shared_libraries = [
   'Xinerama',
   'Xi',
   'Xcursor',
-  'rt',
+  #'rt',
   'pthread',
   'm',
   'GLEW',
-  'SOIL'
+  'SOIL',
+  'sfml-system',
+  'sfml-window'
 ]
 
 cpp_standard = [ # Angaben zum Standard
@@ -38,14 +40,13 @@ std = Environment(
   CXXFLAGS = cpp_standard + warnungen,
   CPPPATH = include_dateien,
   LIBS = shared_libraries,
-  LIBPATH = ['/usr/lib64/']
+  LIBPATH = ['/opt/X11/lib/']
 )
 #std.StaticLibrary(target = 'libSOIL', source = ['./external/soil/lib/libSOIL.a'])
-
 # Teil 3: Programm bauen
 cpp_dateien = [
   'file_controller.cpp',
-  'main.cpp',
+  'main2.cpp',
 ]
 
 programm_name = 'opengl'
