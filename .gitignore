@@ -1,3 +1,12 @@
 *.o
 opengl
 .sconsign.dblite
+Binaries/
+*.cmake
+CMakeCache.txt
+CMakeFiles/
+src/CMakeFiles/
+Makefile
+
+
+
