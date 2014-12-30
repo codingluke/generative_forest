@@ -10,6 +10,10 @@ SET(${PROJECT_NAME}_PATCH_LEVEL 0)
 # Add local repository for FindXXX.cmake modules.
 SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake/Modules/" ${CMAKE_MODULE_PATH})
 
+# Look for ASSIMP
+find_package(ASSIMP REQUIRED)
+include_directories(${ASSIMP_INCLUDE_DIRS})
+
 # Look for OpenGL.
 find_package(OpenGL REQUIRED)
 
@@ -26,6 +30,7 @@ set(OPENGLEXAMPLES_REQUIRED_LIBS
 	${GLFW_LIBRARIES}
 	${GLEW_LIBRARIES}
 	${OPENGL_LIBRARY}
+	${ASSIMP_LIBRARIES}
 )
 
 # Set binaries output folder.
