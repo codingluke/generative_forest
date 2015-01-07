@@ -51,7 +51,9 @@ IF(MSVC)
 ENDIF(MSVC)
 
 # Add main target.
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/External)
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/External
+)
 file(COPY Content DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-add_subdirectory(src)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src)
 

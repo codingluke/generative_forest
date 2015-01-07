@@ -13,7 +13,7 @@ class Mesh
 {
     public :
         struct MeshEntry {
-            static enum BUFFERS {
+            enum BUFFERS {
                 VERTEX_BUFFER, TEXCOORD_BUFFER,
                 NORMAL_BUFFER, INDEX_BUFFER
             };
@@ -32,7 +32,7 @@ class Mesh
         std::vector<MeshEntry*> meshEntries;
 
     public:
-        Mesh(const char *filename);
+        Mesh(char const *filename);
         ~Mesh(void);
 
         void render();

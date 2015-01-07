@@ -1,8 +1,8 @@
-#include "Mesh.h"
+#include "mesh.h"
 
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
-
+#include <iostream>
 
 /**
 *	Constructor, loading the specified aiMesh
@@ -132,15 +132,17 @@ void Mesh::MeshEntry::render() {
 /**
 *	Mesh constructor, loads the specified filename if supported by Assimp
 **/
-Mesh::Mesh(const char *filename)
+Mesh::Mesh(char const *filename)
 {
     Assimp::Importer importer;
     const aiScene *scene = importer.ReadFile(filename, NULL);
     if(!scene) {
-        printf("Unable to laod mesh: %s\n", importer.GetErrorString());
+        std::cerr << "unable to load mesh";
     }
 
+    std::cerr << "num meshes: " << scene->mNumMeshes << "\n";
     for(int i = 0; i < scene->mNumMeshes; ++i) {
+        std::cerr << scene->mMeshes[i];
         meshEntries.push_back(new Mesh::MeshEntry(scene->mMeshes[i]));
     }
 }

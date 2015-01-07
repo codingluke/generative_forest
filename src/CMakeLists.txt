@@ -1,4 +1,5 @@
 add_executable(Forest WIN32 MACOSX_BUNDLE
+    mesh.cpp
     main.cpp
 )
 

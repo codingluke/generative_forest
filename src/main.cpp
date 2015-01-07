@@ -227,6 +227,7 @@ int main()
     while(!glfwWindowShouldClose(window))
     {
         mesh->render();
+        glfwPollEvents();
     }
 
     delete mesh;
@@ -237,9 +238,9 @@ int main()
     glDeleteProgram(shaderProgram);
     glDeleteShader(fragmentShader);
     glDeleteShader(vertexShader);
-    glDeleteTextures(2, textures);
-    glDeleteBuffers(1, &vbo);
-    glDeleteVertexArrays(1, &vao);
+    //glDeleteTextures(2, textures);
+    //glDeleteBuffers(1, &vbo);
+    //glDeleteVertexArrays(1, &vao);
 
     // ---------------------------- TERMINATE ----------------------------- //
 
