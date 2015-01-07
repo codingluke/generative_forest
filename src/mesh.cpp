@@ -1,7 +1,7 @@
 #include "Mesh.h"
 
-#include "include\assimp\Importer.hpp"
-#include "include\assimp\postprocess.h"
+#include "assimp/Importer.hpp"
+#include "assimp/postprocess.h"
 
 
 /**

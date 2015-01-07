@@ -1,10 +1,11 @@
-#pragma once
+#ifndef MESH_H
+#define MESH_H
 
-#include "include/GL/glew.h"
-#include "include/GL/glfw3.h"
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
-#include "include\assimp\scene.h"
-#include "include\assimp\mesh.h"
+#include "assimp/scene.h"
+#include "assimp/mesh.h"
 
 #include <vector>
 
@@ -36,3 +37,5 @@ class Mesh
 
         void render();
 };
+
+#endif
