@@ -1,295 +1,390 @@
+// Include standard headers
 #include <stdio.h>
+#include <stdlib.h>
+#include <vector>
+
+// Include GLEW
 #include <GL/glew.h>
+
+// Include GLFW
 #include <GLFW/glfw3.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
-#define GLM_FORCE_RADIANS
+// Include GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+using namespace glm;
 
-#define GLSL(src) "#version 150 core\n" #src
+// Achtung, die OpenGL-Tutorials nutzen glfw 2.7, glfw kommt mit einem veränderten API schon in der Version 3
 
-int main()
+// Befindet sich bei den OpenGL-Tutorials unter "common"
+#include "shader.hpp"
+
+// Wuerfel und Kugel
+#include "objects.hpp"
+
+// Ab Uebung5 werden objloader.hpp und cpp benoetigt
+#include "objloader.hpp"
+
+// Ab Uebung7 werden texture.hpp und cpp benoetigt
+#include "texture.hpp"
+
+void error_callback(int error, const char* description)
 {
-    // -------------------------------- INIT ------------------------------- //
+	fputs(description, stderr);
+}
 
-    // Init GLFW
-    if (glfwInit() != GL_TRUE) {
-        fprintf(stderr, "Failed to initialize GLFW\n");
-        return -1;
-    }
+float x_rot = 0.0f;
+float y_rot = 0.0f;
+float z_rot = 0.0f;
 
-    // Create a rendering window with OpenGL 3.2 context
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+float x_rot_robot = 0.0f;
+float y_rot_robot = 0.0f;
+float z_rot_robot = 0.0f;
 
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+float z_rot_robot_hand = 0.0f;
 
-    GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL", NULL, NULL);
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	switch (key)
+	{
+	case GLFW_KEY_ESCAPE:
+		glfwSetWindowShouldClose(window, GL_TRUE);
+		break;
+
+	case GLFW_KEY_X:
+		z_rot_robot_hand -= 5.f;
+		break;
+
+	case GLFW_KEY_Y:
+		z_rot_robot_hand += 5.f;
+		break;
+
+	case GLFW_KEY_Z:
+		z_rot += 5.f;
+		break;
+
+	case GLFW_KEY_U:
+		z_rot -= 5.f;
+		break;
+
+	case GLFW_KEY_RIGHT:
+		y_rot += 5.f;
+		break;
+
+	case GLFW_KEY_LEFT:
+		y_rot -= 5.f;
+		break;
+
+	case GLFW_KEY_UP:
+		x_rot += 5.f;
+		break;
+
+	case GLFW_KEY_DOWN:
+		x_rot -= 5.f;
+		break;
+
+	case GLFW_KEY_D:
+		y_rot_robot += 5.f;
+		break;
+
+	case GLFW_KEY_A:
+		y_rot_robot -= 5.f;
+		break;
+
+	case GLFW_KEY_W:
+		x_rot_robot += 5.f;
+		break;
+
+	case GLFW_KEY_S:
+		x_rot_robot -= 5.f;
+		break;
+
+	case GLFW_KEY_Q:
+		z_rot_robot += 5.f;
+		break;
+
+	case GLFW_KEY_E:
+		z_rot_robot -= 5.f;
+		break;
+
+	default:
+		break;
+	}
+}
+
+
+// Diese Drei Matrizen global (Singleton-Muster), damit sie jederzeit modifiziert und
+// an die Grafikkarte geschickt werden koennen
+glm::mat4 Projection;
+glm::mat4 View;
+glm::mat4 Model;
+GLuint programID;
+
+
+void sendMVP()
+{
+	glUniformMatrix4fv(glGetUniformLocation(programID, "M"), 1, GL_FALSE, &Model[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(programID, "V"), 1, GL_FALSE, &View[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(programID, "P"), 1, GL_FALSE, &Projection[0][0]);
+
+	// Our ModelViewProjection : multiplication of our 3 matrices
+	glm::mat4 MVP = Projection * View * Model;
+	// Send our transformation to the currently bound shader,
+	// in the "MVP" uniform, konstant fuer alle Eckpunkte
+	glUniformMatrix4fv(glGetUniformLocation(programID, "MVP"), 1, GL_FALSE, &MVP[0][0]);
+}
+
+void drawCS()
+{
+	glm::mat4 Save = Model;
+	Model = glm::translate(Model, glm::vec3(0.0, 0.0, 0.0));
+	Model = glm::scale(Model, glm::vec3(2.0, 0.01, 0.01));
+	sendMVP();
+	drawCube();
+
+	Model = Save;
+	Model = glm::translate(Model, glm::vec3(0.0, 0.0, 0.0));
+	Model = glm::scale(Model, glm::vec3(0.01, 2.0, 0.01));
+	sendMVP();
+	drawCube();
+
+	Model = Save;
+	Model = glm::translate(Model, glm::vec3(0.0, 0.0, 0.0));
+	Model = glm::scale(Model, glm::vec3(0.01, 0.01, 2.0));
+	sendMVP();
+	drawCube();
+}
+
+void drawSeg(float h)
+{
+	glm::mat4 Save = Model;
+	Model = glm::translate(Model, glm::vec3(0.0, h / 2, 0.0));
+	Model = glm::scale(Model, glm::vec3(h / 5, h / 2, h / 5));
+	sendMVP();
+	drawSphere(10,10);
+	Model = Save;
+}
+
+int main(void)
+{
+	// Initialise GLFW
+	if (!glfwInit())
+	{
+		fprintf(stderr, "Failed to initialize GLFW\n");
+		exit(EXIT_FAILURE);
+	}
+
+	// Fehler werden auf stderr ausgegeben, s. o.
+	glfwSetErrorCallback(error_callback);
+
+	// Open a window and create its OpenGL context
+	// glfwWindowHint vorher aufrufen, um erforderliche Resourcen festzulegen
+	GLFWwindow* window = glfwCreateWindow(1024, // Breite
+										  768,  // Hoehe
+										  "CG - Tutorial", // Ueberschrift
+										  NULL,  // windowed mode
+										  NULL); // shared windoe
+
+	if (!window)
+	{
+		glfwTerminate();
+		exit(EXIT_FAILURE);
+	}
+
+	// Make the window's context current (wird nicht automatisch gemacht)
     glfwMakeContextCurrent(window);
 
-    // Init GLEW
-    glewExperimental = GL_TRUE;
-    if (glewInit() != GLEW_OK) {
-        fprintf(stderr, "Failed to initialize GLEW\n");
-        return -1;
-    }
+	// Initialize GLEW
+	// GLEW ermöglicht Zugriff auf OpenGL-API > 1.1
+	glewExperimental = true; // Needed for core profile
 
-    // Initialize OpenGL
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_LINE_SMOOTH);
+	if (glewInit() != GLEW_OK)
+	{
+		fprintf(stderr, "Failed to initialize GLEW\n");
+		return -1;
+	}
 
-    // ----------------------------- RESOURCES ----------------------------- //
+	// Auf Keyboard-Events reagieren
+	glfwSetKeyCallback(window, key_callback);
 
-    // Create Vertex Array Object
-    GLuint vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
+	// Dark blue background
+	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 
-    // Create a Vertex Buffer Object and copy the vertex data to it
-    GLuint vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	// UEBUNG 5 //
+	std::vector<glm::vec3> vertices; // Eckpunkte des Objektes
+	std::vector<glm::vec2> uvs; // Texturen koordinaten, an welchem Eckpunkt ist welches pixel der Textur.
+	std::vector<glm::vec3> normals; // Beleuchtung der Eckpunkte, winkel des Lichtes
 
-    GLfloat vertices[] = {
-        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+	bool res = loadOBJ("Content/teapot.obj", vertices, uvs, normals);
+	//bool res = loadOBJ("teddy.obj", vertices, uvs, normals);
 
-        -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+	// Jedes Objekt eigenem VAO (VertexArrayObject) zuordnen, damit mehrere Objekte moeglich sind
+	// VAOs sind Container fuer mehrere Buffer, die zusammen gesetzt werden sollen.
+	GLuint VertexArrayIDTeapot;
+	glGenVertexArrays(1, &VertexArrayIDTeapot);
+	glBindVertexArray(VertexArrayIDTeapot);
 
-        -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+	// Ein ArrayBuffer speichert Daten zu Eckpunkten (hier xyz bzw. Position)
+	GLuint vertexbuffer;
+	glGenBuffers(1, &vertexbuffer); // Kennung erhalten
+	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer); // Daten zur Kennung definieren
+	// Buffer zugreifbar für die Shader machen
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+	// Erst nach glEnableVertexAttribArray kann DrawArrays auf die Daten zugreifen...
+	// Mapping zum Vertex Shader
+	glEnableVertexAttribArray(0); // siehe layout im vertex shader: location = 0
+	glVertexAttribPointer(0,  // location = 0
+				  3,  // Datenformat vec3: 3 floats fuer xyz
+				  GL_FLOAT,
+				  GL_FALSE, // Fixedpoint data normalisieren ?
+				  0, // Eckpunkte direkt hintereinander gespeichert
+				  (void*) 0); // abweichender Datenanfang ?
+	// END UEBUNG 5 //
 
-         0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+	GLuint normalbuffer; // Hier alles analog für Normalen in location == 2
+	glGenBuffers(1, &normalbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
+	glEnableVertexAttribArray(2); // siehe layout im vertex shader
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+	GLuint uvbuffer; // Hier alles analog für Texturkoordinaten in location == 1 (2 floats u und v!)
+	glGenBuffers(1, &uvbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+	glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], GL_STATIC_DRAW);
+	glEnableVertexAttribArray(1); // siehe layout im vertex shader
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-        -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+	// Load the texture
+	GLuint Texture = loadBMP_custom("Content/mandrill.bmp");
 
-        -1.5f, -1.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-         1.5f, -1.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-         1.5f,  1.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-         1.5f,  1.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-        -1.5f,  1.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-        -1.5f, -1.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
-    };
+	// Bind our texture in Texture Unit 0
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, Texture);
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	// Set our "myTextureSampler" sampler to user Texture Unit 0
+	glUniform1i(glGetUniformLocation(programID, "myTextureSampler"), 0);
 
-    // Create and compile the vertex shader
-    const char* vertexSource = GLSL(
-        uniform mat4 trans;
-        uniform mat4 view;
-        uniform mat4 proj;
-        uniform vec3 overrideColor;
+	// Create and compile our GLSL program from the shaders
+	programID = LoadShaders("Content/StandardShading.vertexshader", "Content/StandardShading.fragmentshader");
+	// lade color sharer für farbige darstellung
+	//programID = LoadShaders("TransformVertexShader.vertexshader", "ColorFragmentShader.fragmentshader");
 
-        in vec3 position;
-        in vec3 color;
-        in vec2 texcoord;
+	// Shader auch benutzen !
+	glUseProgram(programID);
 
-        out vec3 Color;
-        out vec2 Texcoord;
+	// Lichtquelle positionierung
+	glm::vec4 lightPos = glm::vec4(4,4,-4,0);
+	glUniform3f(glGetUniformLocation(programID, "LightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
 
-        void main() {
-            Color = overrideColor * color;
-            Texcoord = texcoord;
-            gl_Position = proj * view * trans * vec4(position, 1.0);
-        }
-    );
+	glm::mat4 lightTransformation(1.0);
 
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexSource, NULL);
-    glCompileShader(vertexShader);
+	// Eventloop
+	while (!glfwWindowShouldClose(window))
+	{
+		// Clear the screen
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Create and compile the fragment shader
-    const char* fragmentSource = GLSL(
-        uniform sampler2D tex0;
-        uniform sampler2D tex1;
+		// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
+		// Transformationsmatrix!
+		Projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
 
-        in vec3 Color;
-        in vec2 Texcoord;
+		// Camera matrix
+		// Transformationsmatrix!
+		View = glm::lookAt(glm::vec3(0,0,-5), // Camera is at (0,0,-5), in World Space
+						   glm::vec3(0,0,0),  // and looks at the origin
+						   glm::vec3(0,1,0)); // Head is up (set to 0,-1,0 to look upside-down)
 
-        out vec4 outColor;
+		// Model matrix : an identity matrix (model will be at the origin)
+		// Transfromationsmatrix!
+		Model = glm::mat4(1.0f);
 
-        void main() {
-            outColor = mix(texture(tex0, Texcoord), texture(tex1, Texcoord), 0.5) * vec4(Color, 1.0);
-        }
-    );
+		Model = glm::rotate(Model, x_rot, glm::vec3(1, 0, 0));
+		Model = glm::rotate(Model, y_rot, glm::vec3(0, 1, 0));
+		Model = glm::rotate(Model, z_rot, glm::vec3(0, 0, 1));
 
-    //std::string frg_code = read_file("fragment_shader.glsl");
-    //const char *fragmentSource = frg_code.c_str();
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
-    glCompileShader(fragmentShader);
+		// TEEKANNE
+		glm::mat4 Save = Model;
+		Model = glm::translate(Model, glm::vec3(1.5, 0.0, 0.0));
+		Model = glm::scale(Model, glm::vec3(1.0 / 1000.0, 1.0 / 1000.0, 1.0 / 1000.0));
+		//Model = glm::scale(Model, glm::vec3(0.5, 0.5, 0.5)); // Für teddy
+		sendMVP();
+		glBindVertexArray(VertexArrayIDTeapot);
+		// GL_LINES = Liniendaten werden erwartet
+		// GL_TRIANGLES = Poligone (dreieckflächen) werden erwartet
+		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+		//glDrawArrays(GL_LINES, 0, vertices.size());
 
-    // Link the vertex and fragment shader into a shader program
-    GLuint shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glBindFragDataLocation(shaderProgram, 0, "outColor");
-    glLinkProgram(shaderProgram);
-    glUseProgram(shaderProgram);
+		// WireCube ist ein Würfel im Dratmodell.
+		//drawWireCube();
+		//drawCube();
 
-    // Create 2 textures and load images to them
-    GLuint textures[2];
-    glGenTextures(2, textures);
+		// Sphere
+		/*Model = Save;
+		Model = glm::scale(Model, glm::vec3(0.5, 0.5, 0.5));
+		sendMVP();
+		drawSphere(10, 10);
+*/
+		// Cube
+		/*Model = Save;
+		Model = glm::translate(Model, glm::vec3(-1.5, 0.0, 0.0));
+		Model = glm::scale(Model, glm::vec3(0.5, 0.5, 0.5));
+		sendMVP();
+		drawCube();*/
 
-    int width, height, comp = 0;
-    unsigned char* img = 0;
+		// Zeichne eine 3D Linie durch skalierung des Würfels
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textures[0]);
-    img = stbi_load("Content/sample.png", &width, &height, &comp, 0);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
-    glUniform1i(glGetUniformLocation(shaderProgram, "tex0"), 0);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		// Zeichne eine 3D Linie durch skalierung des Würfels
+		/*Model = Save;
+		Model = glm::translate(Model, glm::vec3(-1.5, 0.0, 0.0));
+		Model = glm::scale(Model, glm::vec3(1.0, 0.03, 0.03));
+		sendMVP();
+		drawCube();*/
+		Model = Save;
 
-    stbi_image_free(img);
 
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, textures[1]);
-    img = stbi_load("Content/sample2.png", &width, &height, &comp, 0);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
-    glUniform1i(glGetUniformLocation(shaderProgram, "tex1"), 1);
+		drawCS();
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		// Zeichne ein Segment
+		Model = Save;
 
-    stbi_image_free(img);
+		// Rotate robot
+		Model = glm::rotate(Model, x_rot_robot, glm::vec3(1, 0, 0));
+		drawSeg(0.5);
+		Model = glm::translate(Model, glm::vec3(0.0, 0.5, 0.0));
+		Model = glm::rotate(Model, y_rot_robot, glm::vec3(0, 1, 0));
+		Model = glm::rotate(Model, z_rot_robot, glm::vec3(0, 0, 1));
+		drawSeg(0.4);
+		Model = glm::translate(Model, glm::vec3(0.0, 0.4, 0.0));
+		Model = glm::rotate(Model, z_rot_robot_hand, glm::vec3(0, 0, 1));
+		drawSeg(0.3);
+		lightTransformation = glm::translate(Model, glm::vec3(0.0, 0.3, 0.0));
+		lightPos = lightTransformation * glm::vec4(0,0,0,1);
+		glUniform3f(glGetUniformLocation(programID, "LightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
 
-    // Transform matrices
-    GLint uniTrans = glGetUniformLocation(shaderProgram, "trans");
 
-    glm::mat4 view = glm::lookAt(
-        glm::vec3(2.5f, 2.5f, 1.5f),
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(0.0f, 0.0f, 1.0f)
-    );
-    GLint uniView = glGetUniformLocation(shaderProgram, "view");
-    glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+		// Swap buffers, hintergrundspeicher in vordergrundspeicher laden.
+		// Das Bild wird zu erst im hintergrundspeicher vollständig gezeichnet und dann
+		// in den Vordergrundspeicher geladen, so wird "flakern" beim rendering vermieden.
+		glfwSwapBuffers(window);
 
-    glm::mat4 proj = glm::perspective(45.0f, 800.0f / 600.0f, 1.0f, 10.0f);
-    GLint uniProj = glGetUniformLocation(shaderProgram, "proj");
-    glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
-
-    // Specify the layout of the vertex data
-    GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
-    glEnableVertexAttribArray(posAttrib);
-    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0);
-
-    GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
-    glEnableVertexAttribArray(colAttrib);
-    glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
-
-    GLint texAttrib = glGetAttribLocation(shaderProgram, "texcoord");
-    glEnableVertexAttribArray(texAttrib);
-    glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat)));
-
-    GLint uniColor = glGetUniformLocation(shaderProgram, "overrideColor");
-
-    // ---------------------------- RENDERING ------------------------------ //
-
-    while(!glfwWindowShouldClose(window))
-    {
-        // Clear the screen to black
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // Apply a rotation
-        glm::mat4 trans;
-        trans = glm::rotate(
-            trans,
-            (float)sin(glfwGetTime()) * 2.0f,
-            glm::vec3(0.0f, 0.0f, 1.0f)
-        );
-
-        // Draw cube
-        glUniform3f(uniColor, 1.0f, 1.0f, 1.0f);
-        glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        glEnable(GL_STENCIL_TEST);
-            // Draw floor
-            glStencilFunc(GL_ALWAYS, 1, 0xFF);
-            glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-            glStencilMask(0xFF);
-            glDepthMask(GL_FALSE);
-            glClear(GL_STENCIL_BUFFER_BIT);
-
-            glDrawArrays(GL_TRIANGLES, 36, 6);
-
-            // Draw cube reflection
-            glStencilFunc(GL_EQUAL, 1, 0xFF);
-            glStencilMask(0x00);
-            glDepthMask(GL_TRUE);
-
-            trans = glm::scale(glm::translate(trans, glm::vec3(0, 0, -1)), glm::vec3(1, 1, -1));
-            glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
-
-            glUniform3f(uniColor, 0.3f, 0.3f, 0.3f);
-                glDrawArrays(GL_TRIANGLES, 0, 36);
-            glUniform3f(uniColor, 1.0f, 1.0f, 1.0f);
-
-        glDisable(GL_STENCIL_TEST);
-
-        // Swap buffers and poll window events
-        glfwSwapBuffers(window);
+		// Poll for and process events
         glfwPollEvents();
-    }
+	}
 
-    // ---------------------------- CLEARING ------------------------------ //
+	// Cleanup VBO and shader
+	glDeleteBuffers(1, &vertexbuffer);
+	glDeleteBuffers(1, &normalbuffer);
+	glDeleteBuffers(1, &uvbuffer);
+	glDeleteTextures(1, &Texture);
 
-    // Delete allocated resources
-    glDeleteProgram(shaderProgram);
-    glDeleteShader(fragmentShader);
-    glDeleteShader(vertexShader);
-    glDeleteTextures(2, textures);
-    glDeleteBuffers(1, &vbo);
-    glDeleteVertexArrays(1, &vao);
+	glDeleteProgram(programID);
 
-    // ---------------------------- TERMINATE ----------------------------- //
-
-    // Terminate GLFW
-    glfwTerminate();
-
-    return 0;
+	// Close OpenGL window and terminate GLFW
+	glfwTerminate();
+	return 0;
 }
+
