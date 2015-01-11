@@ -213,12 +213,14 @@ int main(void)
 	glDepthFunc(GL_LESS);
 
 	// UEBUNG 5 //
+	std::vector<unsigned short> indices; // Eckpunkte des Objektes
 	std::vector<glm::vec3> vertices; // Eckpunkte des Objektes
 	std::vector<glm::vec2> uvs; // Texturen koordinaten, an welchem Eckpunkt ist welches pixel der Textur.
 	std::vector<glm::vec3> normals; // Beleuchtung der Eckpunkte, winkel des Lichtes
 
-	bool res = loadOBJ("Content/teapot.obj", vertices, uvs, normals);
-	//bool res = loadOBJ("teddy.obj", vertices, uvs, normals);
+	//bool res = loadOBJ("Content/ladybird.obj", vertices, uvs, normals);
+	bool res = loadAssImp("Content/Hlow.DAE", indices, vertices, uvs, normals);
+	//bool res = loadOBJ("Content/teapot.obj", vertices, uvs, normals);
 
 	// Jedes Objekt eigenem VAO (VertexArrayObject) zuordnen, damit mehrere Objekte moeglich sind
 	// VAOs sind Container fuer mehrere Buffer, die zusammen gesetzt werden sollen.
@@ -308,7 +310,7 @@ int main(void)
 		// TEEKANNE
 		glm::mat4 Save = Model;
 		Model = glm::translate(Model, glm::vec3(1.5, 0.0, 0.0));
-		Model = glm::scale(Model, glm::vec3(1.0 / 1000.0, 1.0 / 1000.0, 1.0 / 1000.0));
+		Model = glm::scale(Model, glm::vec3(1.0 / 100.0, 1.0 / 100.0, 1.0 / 100.0));
 		//Model = glm::scale(Model, glm::vec3(0.5, 0.5, 0.5)); // Für teddy
 		sendMVP();
 		glBindVertexArray(VertexArrayIDTeapot);
