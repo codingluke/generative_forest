@@ -259,7 +259,7 @@ int main(void)
 	std::vector<glm::vec3> normals; // Beleuchtung der Eckpunkte, winkel des Lichtes
 
 	//bool res = loadOBJ("Content/ladybird.obj", vertices, uvs, normals);
-	bool res = loadAssImp("Content/trees9/trees9.3ds", indices, vertices, uvs, normals);
+	bool res = loadAssImp("Content/trees9/tree_1.3ds", indices, vertices, uvs, normals);
 	//bool res = loadOBJ("Content/teapot.obj", vertices, uvs, normals);
 
 	// Jedes Objekt eigenem VAO (VertexArrayObject) zuordnen, damit mehrere Objekte moeglich sind
