@@ -240,7 +240,7 @@ int main(void)
 		fprintf(stderr, "Failed to initialize GLEW\n");
 		return -1;
 	}
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPos(window, window_width / 2., window_height / 2.);
     camera = new Camera(window, vec3(0.0, 0.0, 0.0), window_width, window_height);
     std::cout << to_string(camera->getPosition()) << std::endl;
@@ -336,6 +336,7 @@ int main(void)
   glm::mat4 theForest = glm::make_mat4(forest);
 
 	// Eventloop
+	glm::mat4 Save = Model;
 	while (!glfwWindowShouldClose(window))
 	{
 		// Calculate the processing time for the last frame
@@ -362,65 +363,38 @@ int main(void)
 		// Model matrix : an identity matrix (model will be at the origin)
 		// Transfromationsmatrix!
 		Model = glm::mat4(1.0f);
+    Save = Model;
 
-		Model = glm::rotate(Model, x_rot, glm::vec3(1, 0, 0));
-		Model = glm::rotate(Model, y_rot, glm::vec3(0, 1, 0));
-		Model = glm::rotate(Model, z_rot, glm::vec3(0, 0, 1));
+		//Model = glm::rotate(Model, x_rot, glm::vec3(1, 0, 0));
+		//Model = glm::rotate(Model, y_rot, glm::vec3(0, 1, 0));
+		//Model = glm::rotate(Model, z_rot, glm::vec3(0, 0, 1));
 
-		// TEEKANNE
-		glm::mat4 Save = Model;
-    Model = glm::translate(Model, glm::vec3(1.5, 0.0, 0.0));
-    Model = glm::scale(Model, glm::vec3(1.0 / 100.0, 1.0 / 100.0, 1.0 / 100.0));
-		//Model = glm::scale(Model, glm::vec3(0.5, 0.5, 0.5)); // Für teddy
-		sendMVP();
-		glBindVertexArray(VertexArrayIDTeapot);
-		// GL_LINES = Liniendaten werden erwartet
-		// GL_TRIANGLES = Poligone (dreieckflächen) werden erwartet
-		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
-		//glDrawArrays(GL_LINES, 0, vertices.size());
-
-		// WireCube ist ein Würfel im Dratmodell.
-		//drawWireCube();
-		//drawCube();
-
-		// Sphere
-		/*Model = Save;
-		Model = glm::scale(Model, glm::vec3(0.5, 0.5, 0.5));
-		sendMVP();
-		drawSphere(10, 10);
-*/
-		// Cube
-		/*Model = Save;
-		Model = glm::translate(Model, glm::vec3(-1.5, 0.0, 0.0));
-		Model = glm::scale(Model, glm::vec3(0.5, 0.5, 0.5));
-		sendMVP();
-		drawCube();*/
-
-		// Zeichne eine 3D Linie durch skalierung des Würfels
-
-
-		// Zeichne eine 3D Linie durch skalierung des Würfels
-		/*Model = Save;
-		Model = glm::translate(Model, glm::vec3(-1.5, 0.0, 0.0));
-		Model = glm::scale(Model, glm::vec3(1.0, 0.03, 0.03));
-		sendMVP();
-		drawCube();*/
-		Model = Save;
 		sendMVP();
     drawCS();
 
 		// Zeichne ein Segment
     Model = Save;
+	  glm::mat4 Save2 = Model;
 
-		// Rotate robot
-    //Model = glm::rotate(Model, x_rot_robot, glm::vec3(1, 0, 0));
-    //Model = glm::translate(Model, glm::vec3(0.0, 0.5, 0.0));
-    //Model = glm::rotate(Model, y_rot_robot, glm::vec3(0, 1, 0));
-    //Model = glm::rotate(Model, z_rot_robot, glm::vec3(0, 0, 1));
-    //drawSeg(0.4);
-    //Model = glm::translate(Model, glm::vec3(0.0, 0.4, 0.0));
-    //Model = glm::rotate(Model, z_rot_robot_hand, glm::vec3(0, 0, 1));
-    //drawSeg(0.3);
+    // Zeichne Wald
+    float scale = 0.0f;
+    Model = glm::scale(Model, glm::vec3(1.0 / 100.0, 1.0 / 100.0, 1.0 / 100.0));
+    for (int row = 0; row < 4; row++) {
+      for (int col = 0; col < 4; col++) {
+        if (theForest[row][col] > 0) {
+          Save2 = Model;
+          Model = glm::rotate(Model, -90.0f, glm::vec3(1, 0, 0));
+          scale = theForest[row][col] / 2.0f;
+          Model = glm::scale(Model, glm::vec3(scale, scale, scale));
+          sendMVP();
+          glBindVertexArray(VertexArrayIDTeapot);
+          glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+          Model = Save2;
+        }
+		    Model = glm::translate(Model, glm::vec3(0.0, 0.0, 60.0));
+      }
+		  Model = glm::translate(Model, glm::vec3(60.0, 0.0, -240.0));
+    }
 
     lightTransformation = glm::translate(Model, glm::vec3(0.0, 0.3, 0.0));
     lightPos = lightTransformation * glm::vec4(0,0,0,1);
