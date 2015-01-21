@@ -240,6 +240,7 @@ int main(void)
 		fprintf(stderr, "Failed to initialize GLEW\n");
 		return -1;
 	}
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
     glfwSetCursorPos(window, window_width / 2., window_height / 2.);
     camera = new Camera(window, vec3(0.0, 0.0, 0.0), window_width, window_height);
     std::cout << to_string(camera->getPosition()) << std::endl;

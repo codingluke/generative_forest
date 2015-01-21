@@ -44,6 +44,7 @@ public:
     void handleMouseMove(GLFWwindow *window, double mouse_x, double mouse_y);
     const double toRads(const double &angleInDegrees) const;
     void move(double deltaTime);
+    void moveOnPlaneXY(double deltaTime);
 
     glm::vec3 getPosition() const;
     double getXPos() const;
