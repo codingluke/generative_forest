@@ -240,7 +240,7 @@ int main(void)
 		fprintf(stderr, "Failed to initialize GLEW\n");
 		return -1;
 	}
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPos(window, window_width / 2., window_height / 2.);
     camera = new Camera(window, vec3(0.0, 0.0, 0.0), window_width, window_height);
     std::cout << to_string(camera->getPosition()) << std::endl;
@@ -332,7 +332,7 @@ int main(void)
 		// Calculate the processing time for the last frame
         currentTime = glfwGetTime();
         camera->deltaTime = currentTime - lastTime;
-        camera->move(currentTime - lastTime);
+        camera->moveOnPlaneXY(currentTime - lastTime);
         lastTime = currentTime;
 		// Clear the screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

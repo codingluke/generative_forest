@@ -78,11 +78,32 @@ void Camera::move(double deltaTime)
         movement += right * float(deltaTime);
 
     position += movement; 
+    
 }
 
 void Camera::moveOnPlaneXY(double deltaTime)
 {
-    
+    glm::vec3 movement = glm::vec3(0.0, 0.0, 0.0);
+    glm::vec3 adjustedDirection = direction;
+    adjustedDirection[1] = 0.0;
+    glm::vec3 adjustedRight = right;
+    adjustedRight[1] = 0.0;
+
+    if (key_up) 
+        movement += adjustedDirection;
+    if (key_down)
+        movement -= adjustedDirection;
+    if (key_left)
+        movement -= adjustedRight;
+    if (key_right)
+        movement += adjustedRight;
+
+    if (glm::length(movement) > 0) {
+        movement = glm::normalize(movement);
+        movement *= float(deltaTime);
+    }
+    position += movement;
+    std::cout << glm::to_string(position) << std::endl;
 }
 
 glm::vec3 Camera::getPosition() const
