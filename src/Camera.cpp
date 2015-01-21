@@ -78,6 +78,10 @@ void Camera::move(double deltaTime)
         movement += right * float(deltaTime);
 
     position += movement; 
+}
+
+void Camera::moveOnPlaneXY(double deltaTime)
+{
     
 }
 
