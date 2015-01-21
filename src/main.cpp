@@ -328,7 +328,11 @@ int main(void)
 	// Eventloop
 	while (!glfwWindowShouldClose(window))
 	{
+		// Calculate the processing time for the last frame
         currentTime = glfwGetTime();
+        camera->deltaTime = currentTime - lastTime;
+        camera->move(currentTime - lastTime);
+        lastTime = currentTime;
 		// Clear the screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -338,10 +342,6 @@ int main(void)
 
 		// Camera matrix
 		// Transformationsmatrix!
-        
-        camera->deltaTime = currentTime - lastTime;
-        camera->move(currentTime - lastTime);
-       
         glm::vec3 cam_position = camera->getPosition();
         glm::vec3 cam_direction = camera->getDirection();
         glm::vec3 cam_up = camera->getUp();
@@ -427,16 +427,9 @@ int main(void)
 		// Poll for and process events
         glfwPollEvents();
 
-        lastTime = currentTime;
-        // double xpos, ypos;
-        // glfwGetCursorPos(window, &xpos, &ypos);
-        // if (xpos < (window_width / 2) - 1 || xpos > (window_width / 2) + 1 
-        //	|| ypos < (window_height / 2) - 1 || ypos > (window_height / 2) + 1) 
-        // {
-        //     glfwSetCursorPosCallback(window, NULL);
-        //     glfwSetCursorPos(window, window_width / 2, window_height / 2);
-        //     glfwSetCursorPosCallback(window, handleMouseMove);
-        // }
+        //     	glfwSetCursorPosCallback(window, NULL);
+        //		...
+        //     	glfwSetCursorPosCallback(window, handleMouseMove);
 	}
 
 	// Cleanup VBO and shader
