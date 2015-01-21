@@ -12,8 +12,8 @@
 // Include GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
 #include "glm/ext.hpp"
+#include <glm/gtc/type_ptr.hpp>
 using namespace glm;
 
 // Achtung, die OpenGL-Tutorials nutzen glfw 2.7, glfw kommt mit einem veränderten API schon in der Version 3
@@ -81,7 +81,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     		break;
     	}
     }
-    else 
+    else
     {
         switch(key)
         {
@@ -106,7 +106,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             break;
         default:
             break;
-        }    
+        }
     }
 }
 
@@ -164,10 +164,10 @@ void drawGround(float groundLevel)
 {
     GLfloat extent      = 600.0f; // How far on the Z-Axis and X-Axis the ground extends
     GLfloat stepSize    = 20.0f;  // The size of the separation between points
- 
+
     // Set colour to white
     glColor3ub(255, 255, 255);
- 
+
     // Draw our ground grid
     glBegin(GL_LINES);
     for (GLint loop = -extent; loop < extent; loop += stepSize)
@@ -175,7 +175,7 @@ void drawGround(float groundLevel)
         // Draw lines along Z-Axis
         glVertex3f(loop, groundLevel,  extent);
         glVertex3f(loop, groundLevel, -extent);
- 
+
         // Draw lines across X-Axis
         glVertex3f(-extent, groundLevel, loop);
         glVertex3f( extent, groundLevel, loop);
@@ -214,7 +214,7 @@ int main(void)
 	// Open a window and create its OpenGL context
 	// glfwWindowHint vorher aufrufen, um erforderliche Resourcen festzulegen
     int window_width = 1024;
-    int window_height = 768; 
+    int window_height = 768;
 	GLFWwindow* window = glfwCreateWindow(window_width, // Breite
 										  window_height,  // Hoehe
 										  "CG - Tutorial", // Ueberschrift
@@ -322,9 +322,18 @@ int main(void)
 
 	glm::mat4 lightTransformation(1.0);
 
-    float currentTime = 0.0;
-    float lastTime = 0.0;
-   
+  float currentTime = 0.0;
+  float lastTime = 0.0;
+
+  // Forest matrix
+  float forest[16] = {
+    1, 0, 3, 2,
+    0, 1, 3, 1,
+    1, 0, 4, 3,
+    2, 4, 2, 0
+  };
+  glm::mat4 theForest = glm::make_mat4(forest);
+
 	// Eventloop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -359,8 +368,8 @@ int main(void)
 
 		// TEEKANNE
 		glm::mat4 Save = Model;
-		Model = glm::translate(Model, glm::vec3(1.5, 0.0, 0.0));
-		Model = glm::scale(Model, glm::vec3(1.0 / 100.0, 1.0 / 100.0, 1.0 / 100.0));
+    Model = glm::translate(Model, glm::vec3(1.5, 0.0, 0.0));
+    Model = glm::scale(Model, glm::vec3(1.0 / 100.0, 1.0 / 100.0, 1.0 / 100.0));
 		//Model = glm::scale(Model, glm::vec3(0.5, 0.5, 0.5)); // Für teddy
 		sendMVP();
 		glBindVertexArray(VertexArrayIDTeapot);
@@ -396,26 +405,25 @@ int main(void)
 		sendMVP();
 		drawCube();*/
 		Model = Save;
-
-
-		drawCS();
+		sendMVP();
+    drawCS();
 
 		// Zeichne ein Segment
-		Model = Save;
+    Model = Save;
 
 		// Rotate robot
-		Model = glm::rotate(Model, x_rot_robot, glm::vec3(1, 0, 0));
-		drawSeg(0.5);
-		Model = glm::translate(Model, glm::vec3(0.0, 0.5, 0.0));
-		Model = glm::rotate(Model, y_rot_robot, glm::vec3(0, 1, 0));
-		Model = glm::rotate(Model, z_rot_robot, glm::vec3(0, 0, 1));
-		drawSeg(0.4);
-		Model = glm::translate(Model, glm::vec3(0.0, 0.4, 0.0));
-		Model = glm::rotate(Model, z_rot_robot_hand, glm::vec3(0, 0, 1));
-		drawSeg(0.3);
-		lightTransformation = glm::translate(Model, glm::vec3(0.0, 0.3, 0.0));
-		lightPos = lightTransformation * glm::vec4(0,0,0,1);
-		glUniform3f(glGetUniformLocation(programID, "LightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
+    //Model = glm::rotate(Model, x_rot_robot, glm::vec3(1, 0, 0));
+    //Model = glm::translate(Model, glm::vec3(0.0, 0.5, 0.0));
+    //Model = glm::rotate(Model, y_rot_robot, glm::vec3(0, 1, 0));
+    //Model = glm::rotate(Model, z_rot_robot, glm::vec3(0, 0, 1));
+    //drawSeg(0.4);
+    //Model = glm::translate(Model, glm::vec3(0.0, 0.4, 0.0));
+    //Model = glm::rotate(Model, z_rot_robot_hand, glm::vec3(0, 0, 1));
+    //drawSeg(0.3);
+
+    lightTransformation = glm::translate(Model, glm::vec3(0.0, 0.3, 0.0));
+    lightPos = lightTransformation * glm::vec4(0,0,0,1);
+    glUniform3f(glGetUniformLocation(programID, "LightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
 
         // drawGround(-100.0f); // Draw lower ground grid
         // drawGround(100.0f);  // Draw upper ground grid
@@ -425,7 +433,7 @@ int main(void)
 		glfwSwapBuffers(window);
 
 		// Poll for and process events
-        glfwPollEvents();
+    glfwPollEvents();
 
         //     	glfwSetCursorPosCallback(window, NULL);
         //		...
