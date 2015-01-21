@@ -4,6 +4,7 @@ add_executable(Forest WIN32 MACOSX_BUNDLE
     objloader.cpp
     shader.cpp
     texture.cpp
+    Camera.cpp
 )
 
 target_link_libraries(Forest ${OPENGLEXAMPLES_REQUIRED_LIBS} png)
