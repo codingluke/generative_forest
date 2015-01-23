@@ -278,7 +278,7 @@ int main(void)
           Model = glm::scale(Model, glm::vec3(scale, scale, scale));
           if (dist < 1) {
             tree.render(Model, View, Projection, programID);
-          } else {
+          } else if (dist < 10) {
             treeLow.render(Model, View, Projection, programID);
           }
           Model = Save2;
