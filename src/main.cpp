@@ -14,6 +14,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "glm/ext.hpp"
 #include <glm/gtc/type_ptr.hpp>
+
 using namespace glm;
 
 // Achtung, die OpenGL-Tutorials nutzen glfw 2.7, glfw kommt mit einem veränderten API schon in der Version 3
