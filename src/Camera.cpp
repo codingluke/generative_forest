@@ -12,7 +12,7 @@ Camera::Camera(GLFWwindow *window, glm::vec3 position, double window_width, doub
 
 void Camera::initialize(glm::vec3 position, double window_width, double window_height)
 {
-    this->position = position;
+    this->position = position + glm::vec3(0.0, 0.5, 0.0);
     this->direction = glm::vec3(0.0, 0.0, 0.0);
     this->right = glm::vec3(0.0, 0.0, 0.0);
     this->up = glm::vec3(0.0, 0.0, 0.0);
@@ -39,8 +39,8 @@ Camera::~Camera()
 void Camera::handleMouseMove(GLFWwindow *window, double mouse_x, double mouse_y)
 {
     double horiz_add = mouseSpeed * deltaTime * (window_mid_x - mouse_x);
-    double vert_add = mouseSpeed * deltaTime * (window_mid_y - mouse_y); 
-    horiz_angle += horiz_add; 
+    double vert_add = mouseSpeed * deltaTime * (window_mid_y - mouse_y);
+    horiz_angle += horiz_add;
     vert_angle += vert_add;
     if (vert_angle > M_PI / 2)
         vert_angle = M_PI / 2;
@@ -71,7 +71,7 @@ void Camera::move(double deltaTime)
 {
     glm::vec3 movement = glm::vec3(0.0, 0.0, 0.0);
 
-    if (key_up) 
+    if (key_up)
         movement += direction * float(deltaTime);
     if (key_down)
         movement -= direction * float(deltaTime);
@@ -80,8 +80,8 @@ void Camera::move(double deltaTime)
     if (key_right)
         movement += right * float(deltaTime);
 
-    position += movement; 
-    
+    position += movement;
+
 }
 
 void Camera::moveOnPlaneXY(double deltaTime)
@@ -92,7 +92,7 @@ void Camera::moveOnPlaneXY(double deltaTime)
     glm::vec3 adjustedRight = right;
     adjustedRight[1] = 0.0;
 
-    if (key_up) 
+    if (key_up)
         movement += adjustedDirection;
     if (key_down)
         movement -= adjustedDirection;
@@ -118,7 +118,7 @@ double Camera::getXPos() const
     return position[0];
 }
 double Camera::getYPos() const
-{   
+{
     return position[1];
 }
 double Camera::getZPos() const
@@ -143,7 +143,7 @@ double Camera::getZDir() const
     return direction[2];
 }
 
-glm::vec3 Camera::getUp() const 
+glm::vec3 Camera::getUp() const
 {
     return up;
 }
