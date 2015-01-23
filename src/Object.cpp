@@ -1,5 +1,6 @@
 #include "Object.h"
 #include "objloader.hpp"
+#include "texture.hpp"
 
 Object::Object(const char *filename)
 {
@@ -7,6 +8,13 @@ Object::Object(const char *filename)
     bindVertexBuffer();
     bindNormalBuffer();
     bindUvBuffer();
+}
+
+Object::Object(const char *filename, const char *texFilename) : Object(filename)
+{
+  // Load the texture
+  texture = loadBMP_custom(texFilename);
+
 }
 
 void Object::bindUvBuffer()
@@ -64,6 +72,16 @@ Object::~Object()
 void Object::render(glm::mat4 model, glm::mat4 view,
                     glm::mat4 projection, GLuint programID)
 {
+    if (texture) {
+        // Bind our texture in Texture Unit 0
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture);
+
+	      // Set our "myTextureSampler" sampler to user Texture Unit 0
+        glUniform1i(glGetUniformLocation(programID, "myTextureSampler"), 0);
+    } else {
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
     sendMVP(model, view, projection, programID);
     glBindVertexArray(vertexArrayId);
     glDrawArrays(GL_TRIANGLES, 0, vertices.size());

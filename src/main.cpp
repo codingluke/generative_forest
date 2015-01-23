@@ -142,59 +142,6 @@ void sendMVP()
 	glUniformMatrix4fv(glGetUniformLocation(programID, "MVP"), 1, GL_FALSE, &MVP[0][0]);
 }
 
-void drawCS()
-{
-	glm::mat4 Save = Model;
-	Model = glm::translate(Model, glm::vec3(0.0, 0.0, 0.0));
-	Model = glm::scale(Model, glm::vec3(2.0, 0.01, 0.01));
-	sendMVP();
-	drawCube();
-
-	Model = Save;
-	Model = glm::translate(Model, glm::vec3(0.0, 0.0, 0.0));
-	Model = glm::scale(Model, glm::vec3(0.01, 2.0, 0.01));
-	sendMVP();
-	drawCube();
-
-	Model = Save;
-	Model = glm::translate(Model, glm::vec3(0.0, 0.0, 0.0));
-	Model = glm::scale(Model, glm::vec3(0.01, 0.01, 2.0));
-	sendMVP();
-	drawCube();
-}
-
-void drawGround(float groundLevel)
-{
-    GLfloat extent      = 600.0f; // How far on the Z-Axis and X-Axis the ground extends
-    GLfloat stepSize    = 20.0f;  // The size of the separation between points
-
-    // Set colour to white
-    glColor3ub(255, 255, 255);
-
-    // Draw our ground grid
-    glBegin(GL_LINES);
-    for (GLint loop = -extent; loop < extent; loop += stepSize)
-    {
-        // Draw lines along Z-Axis
-        glVertex3f(loop, groundLevel,  extent);
-        glVertex3f(loop, groundLevel, -extent);
-
-        // Draw lines across X-Axis
-        glVertex3f(-extent, groundLevel, loop);
-        glVertex3f( extent, groundLevel, loop);
-    }
-    glEnd();
-}
-
-void drawSeg(float h)
-{
-	glm::mat4 Save = Model;
-	Model = glm::translate(Model, glm::vec3(0.0, h / 2, 0.0));
-	Model = glm::scale(Model, glm::vec3(h / 5, h / 2, h / 5));
-	sendMVP();
-	drawSphere(10,10);
-	Model = Save;
-}
 
 int main(void)
 {
@@ -232,7 +179,7 @@ int main(void)
 
 
 	// Make the window's context current (wird nicht automatisch gemacht)
-    glfwMakeContextCurrent(window);
+  glfwMakeContextCurrent(window);
 
 	// Initialize GLEW
 	// GLEW ermöglicht Zugriff auf OpenGL-API > 1.1
@@ -244,35 +191,23 @@ int main(void)
 		return -1;
 	}
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetCursorPos(window, window_width / 2., window_height / 2.);
-    camera = new Camera(window, vec3(0.0, 0.0, 0.0), window_width, window_height);
-    std::cout << to_string(camera->getPosition()) << std::endl;
+  glfwSetCursorPos(window, window_width / 2., window_height / 2.);
+  camera = new Camera(window, vec3(0.0, 0.0, 0.0), window_width, window_height);
+  std::cout << to_string(camera->getPosition()) << std::endl;
 	// Auf Keyboard-Events reagieren
 	glfwSetKeyCallback(window, key_callback);
-    glfwSetCursorPosCallback(window, handleMouseMove);
+  glfwSetCursorPosCallback(window, handleMouseMove);
 	// Dark blue background
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
-  Object tree("Content/trees9/tree_1.3ds");
-  Object head("Content/Hlow.DAE");
-
-	// Load the texture
-	//GLuint Texture = loadBMP_custom("Content/mandrill.bmp");
-
-	// Bind our texture in Texture Unit 0
-	//glActiveTexture(GL_TEXTURE0);
-	//glBindTexture(GL_TEXTURE_2D, Texture);
-
-	// Set our "myTextureSampler" sampler to user Texture Unit 0
-	//glUniform1i(glGetUniformLocation(programID, "myTextureSampler"), 0);
+  Object tree("Content/trees9/tree_1.3ds", "Content/trees9/Bark___0.bmp");
+  Object head("Content/Hlow.DAE", "Content/mandrill.bmp");
 
 	// Create and compile our GLSL program from the shaders
-	programID = LoadShaders("Content/StandardShading.vertexshader", "Content/StandardShading.fragmentshader");
-	// lade color sharer für farbige darstellung
-	//programID = LoadShaders("TransformVertexShader.vertexshader", "ColorFragmentShader.fragmentshader");
-
+	programID = LoadShaders("Content/StandardShading.vertexshader",
+                          "Content/StandardShading.fragmentshader");
 	// Shader auch benutzen !
 	glUseProgram(programID);
 
@@ -333,24 +268,27 @@ int main(void)
 		// Zeichne ein Segment
     Model = Save;
 	  glm::mat4 Save2 = Model;
+    tree.render(Model, View, Projection, programID);
+		Model = glm::translate(Model, glm::vec3(0.0, 0.0, 10.0));
+    head.render(Model, View, Projection, programID);
 
     // Zeichne Wald
-    float scale = 0.0f;
-    Model = glm::scale(Model, glm::vec3(1.0 / 100.0, 1.0 / 100.0, 1.0 / 100.0));
-    for (int row = 0; row < 10; row++) {
-      for (int col = 0; col < 10; col++) {
-        if (forest[row][col] > 0) {
-          Save2 = Model;
-          Model = glm::rotate(Model, -90.0f, glm::vec3(1, 0, 0));
-          scale = forest[row][col];
-          Model = glm::scale(Model, glm::vec3(scale, scale, scale));
-          tree.render(Model, View, Projection, programID);
-          Model = Save2;
-        }
-		    Model = glm::translate(Model, glm::vec3(0.0, 0.0, 2.0));
-      }
-		  Model = glm::translate(Model, glm::vec3(2.0, 0.0, -20.0));
-    }
+    //float scale = 0.0f;
+    //Model = glm::scale(Model, glm::vec3(1.0 / 100.0, 1.0 / 100.0, 1.0 / 100.0));
+    //for (int row = 0; row < 10; row++) {
+      //for (int col = 0; col < 10; col++) {
+        //if (forest[row][col] > 0) {
+          //Save2 = Model;
+          //Model = glm::rotate(Model, -90.0f, glm::vec3(1, 0, 0));
+          //scale = forest[row][col];
+          //Model = glm::scale(Model, glm::vec3(scale, scale, scale));
+          //tree.render(Model, View, Projection, programID);
+          //Model = Save2;
+        //}
+				//Model = glm::translate(Model, glm::vec3(0.0, 0.0, 2.0));
+      //}
+			//Model = glm::translate(Model, glm::vec3(2.0, 0.0, -20.0));
+    //}
 
     lightTransformation = glm::translate(Model, glm::vec3(0.0, 0.3, 0.0));
     lightPos = lightTransformation * glm::vec4(0,0,0,1);

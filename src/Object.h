@@ -22,7 +22,7 @@ class Object
         GLuint vertexBufferId;
         GLuint normalBufferId;
         GLuint uvBufferId;
-        GLuint texture;
+        GLuint texture = NULL;
         vector<unsigned short> indices;
         vector<glm::vec3> vertices;
         // Texturen koordinaten, an welchem Eckpunkt ist welches pixel der Textur.
@@ -32,6 +32,7 @@ class Object
 
     public:
         Object(const char *filename);
+        Object(const char *filename, const char *texFilename);
         ~Object(void);
 
         void render(glm::mat4 model, glm::mat4 view,
