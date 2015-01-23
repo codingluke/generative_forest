@@ -327,13 +327,12 @@ int main(void)
   float lastTime = 0.0;
 
   // Forest matrix
-  float forest[16] = {
-    1, 0, 3, 2,
-    0, 1, 3, 1,
-    1, 0, 4, 3,
-    2, 4, 2, 0
-  };
-  glm::mat4 theForest = glm::make_mat4(forest);
+  float forest[100][100] = { 0 };
+  for (int row = 0; row < 100; row++) {
+    for (int col = 0; col < 100; col++) {
+      forest[row][col] = 1;
+    }
+  }
 
 	// Eventloop
 	glm::mat4 Save = Model;
@@ -369,8 +368,8 @@ int main(void)
 		//Model = glm::rotate(Model, y_rot, glm::vec3(0, 1, 0));
 		//Model = glm::rotate(Model, z_rot, glm::vec3(0, 0, 1));
 
-		sendMVP();
-    drawCS();
+		//sendMVP();
+    //drawCS();
 
 		// Zeichne ein Segment
     Model = Save;
@@ -379,21 +378,21 @@ int main(void)
     // Zeichne Wald
     float scale = 0.0f;
     Model = glm::scale(Model, glm::vec3(1.0 / 100.0, 1.0 / 100.0, 1.0 / 100.0));
-    for (int row = 0; row < 4; row++) {
-      for (int col = 0; col < 4; col++) {
-        if (theForest[row][col] > 0) {
+    for (int row = 0; row < 10; row++) {
+      for (int col = 0; col < 10; col++) {
+        if (forest[row][col] > 0) {
           Save2 = Model;
           Model = glm::rotate(Model, -90.0f, glm::vec3(1, 0, 0));
-          scale = theForest[row][col] / 2.0f;
+          scale = forest[row][col] / 2.0f;
           Model = glm::scale(Model, glm::vec3(scale, scale, scale));
           sendMVP();
           glBindVertexArray(VertexArrayIDTeapot);
           glDrawArrays(GL_TRIANGLES, 0, vertices.size());
           Model = Save2;
         }
-		    Model = glm::translate(Model, glm::vec3(0.0, 0.0, 60.0));
+		    Model = glm::translate(Model, glm::vec3(0.0, 0.0, 2.0));
       }
-		  Model = glm::translate(Model, glm::vec3(60.0, 0.0, -240.0));
+		  Model = glm::translate(Model, glm::vec3(2.0, 0.0, -20.0));
     }
 
     lightTransformation = glm::translate(Model, glm::vec3(0.0, 0.3, 0.0));
