@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
-
+#include <cmath>
 // Include GLEW
 #include <GL/glew.h>
 
@@ -34,6 +34,8 @@ using namespace glm;
 #include "texture.hpp"
 
 #include "Camera.h"
+
+#include "PerlinNoise.h"
 
 void error_callback(int error, const char* description)
 {
@@ -219,11 +221,16 @@ int main(void)
   float currentTime = 0.0;
   float lastTime = 0.0;
 
+  // Make Perlin Noise, might need some tweaking.
+  	unsigned int seed = floor(double(random() * 250));
+  	PerlinNoise pn(seed);
   // Forest matrix
   float forest[100][100] = { 0 };
   for (int row = 0; row < 100; row++) {
     for (int col = 0; col < 100; col++) {
-      forest[row][col] = 1;
+    	double val = pn.noise((double)row, (double)col, 0.5 ) * 2;
+    	// std::cout << val << std::endl;	
+      forest[row][col] = val;
     }
   }
 
@@ -249,7 +256,7 @@ int main(void)
         glm::vec3 cam_position = camera->getPosition();
         glm::vec3 cam_direction = camera->getDirection();
         glm::vec3 cam_up = camera->getUp();
-		View = glm::lookAt(cam_position, // Camera is at (0,0,-5), in World Space
+		View = glm::lookAt(cam_position, // Camera is at pos, in World Space
 						   cam_position + cam_direction,  // and looks at the origin
 						   cam_up); // Head is up (set to 0,-1,0 to look upside-down)
 
