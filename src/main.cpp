@@ -46,68 +46,68 @@ Camera *camera;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if (action == GLFW_PRESS || action == GLFW_REPEAT)
-    {
-    	switch (key)
-    	{
-    	case GLFW_KEY_ESCAPE:
-    		glfwSetWindowShouldClose(window, GL_TRUE);
-    		break;
-    	case GLFW_KEY_D:
-            camera->key_right = true;
+	if (action == GLFW_PRESS || action == GLFW_REPEAT)
+	{
+		switch (key)
+		{
+			case GLFW_KEY_ESCAPE:
+			glfwSetWindowShouldClose(window, GL_TRUE);
+			break;
+			case GLFW_KEY_D:
+			camera->key_right = true;
     		//y_rot_robot += 5.f;
-    		break;
+			break;
 
-    	case GLFW_KEY_A:
-    		camera->key_left = true;
+			case GLFW_KEY_A:
+			camera->key_left = true;
             //y_rot_robot -= 5.f;
-    		break;
+			break;
 
-    	case GLFW_KEY_W:
-            camera->key_up = true;
+			case GLFW_KEY_W:
+			camera->key_up = true;
     		//x_rot_robot += 5.f;
-    		break;
+			break;
 
-    	case GLFW_KEY_S:
-    		camera->key_down = true;
+			case GLFW_KEY_S:
+			camera->key_down = true;
             //x_rot_robot -= 5.f;
-    		break;
-    	default:
-    		break;
-    	}
-    }
-    else
-    {
-        switch(key)
-        {
-            case GLFW_KEY_D:
-            camera->key_right = false;
+			break;
+			default:
+			break;
+		}
+	}
+	else
+	{
+		switch(key)
+		{
+			case GLFW_KEY_D:
+			camera->key_right = false;
             //y_rot_robot += 5.f;
-            break;
+			break;
 
-        case GLFW_KEY_A:
-            camera->key_left = false;
+			case GLFW_KEY_A:
+			camera->key_left = false;
             //y_rot_robot -= 5.f;
-            break;
+			break;
 
-        case GLFW_KEY_W:
-            camera->key_up = false;
+			case GLFW_KEY_W:
+			camera->key_up = false;
             //x_rot_robot += 5.f;
-            break;
+			break;
 
-        case GLFW_KEY_S:
-            camera->key_down = false;
+			case GLFW_KEY_S:
+			camera->key_down = false;
             //x_rot_robot -= 5.f;
-            break;
-        default:
-            break;
-        }
-    }
+			break;
+			default:
+			break;
+		}
+	}
 }
 
 void handleMouseMove(GLFWwindow *window, double mouse_x, double mouse_y)
 {
-    camera->handleMouseMove(window, mouse_x, mouse_y);
+	camera->handleMouseMove(window, mouse_x, mouse_y);
 }
 
 
@@ -157,15 +157,15 @@ int main(void)
 	glfwSetErrorCallback(error_callback);
 
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	// Open a window and create its OpenGL context
 	// glfwWindowHint vorher aufrufen, um erforderliche Resourcen festzulegen
-    int window_width = 1024;
-    int window_height = 768;
+	int window_width = 1024;
+	int window_height = 768;
 	GLFWwindow* window = glfwCreateWindow(window_width, // Breite
 										  window_height,  // Hoehe
 										  "CG - Tutorial", // Ueberschrift
@@ -180,7 +180,7 @@ int main(void)
 
 
 	// Make the window's context current (wird nicht automatisch gemacht)
-  glfwMakeContextCurrent(window);
+	glfwMakeContextCurrent(window);
 
 	// Initialize GLEW
 	// GLEW ermöglicht Zugriff auf OpenGL-API > 1.1
@@ -192,23 +192,23 @@ int main(void)
 		return -1;
 	}
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetCursorPos(window, window_width / 2., window_height / 2.);
-    camera = new Camera(window, vec3(0.0, 0.0, 0.0), window_width, window_height);
+	glfwSetCursorPos(window, window_width / 2., window_height / 2.);
+	camera = new Camera(window, vec3(0.0, 0.0, 0.0), window_width, window_height);
     // std::cout << to_string(camera->getPosition()) << std::endl;
 	// Auf Keyboard-Events reagieren
 	glfwSetKeyCallback(window, key_callback);
-  glfwSetCursorPosCallback(window, handleMouseMove);
+	glfwSetCursorPosCallback(window, handleMouseMove);
 	// Dark blue background
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
-  Object treeLow("Content/trees9/tree_1_low.3ds", "Content/trees9/Bark___1.bmp");
-  Object tree("Content/trees9/tree_1_mid.3ds", "Content/trees9/Bark___S.bmp");
+	Object treeLow("Content/trees9/tree_1_low.3ds", "Content/trees9/Bark___1.bmp");
+	Object tree("Content/trees9/tree_1_mid.3ds", "Content/trees9/Bark___S.bmp");
 
 	// Create and compile our GLSL program from the shaders
 	programID = LoadShaders("Content/StandardShading.vertexshader",
-                          "Content/StandardShading.fragmentshader");
+		"Content/StandardShading.fragmentshader");
 	// Shader auch benutzen !
 	glUseProgram(programID);
 
@@ -218,31 +218,41 @@ int main(void)
 
 	glm::mat4 lightTransformation(1.0);
 
-  float currentTime = 0.0;
-  float lastTime = 0.0;
+	float currentTime = 0.0;
+	float lastTime = 0.0;
 
   // Make Perlin Noise, might need some tweaking.
-  	unsigned int seed = floor(double(random() * 250));
-  	PerlinNoise pn(seed);
+	unsigned int seed = floor(double(random() * 250));
+	PerlinNoise pn(seed);
+	double treeDensity = 0.85;
+	double isTree = 0;
   // Forest matrix
-  float forest[100][100] = { 0 };
-  for (int row = 0; row < 100; row++) {
-    for (int col = 0; col < 100; col++) {
-    	double val = pn.noise((double)row, (double)col, 0.5 ) * 2;
-    	// std::cout << val << std::endl;	
-      forest[row][col] = val;
-    }
-  }
+	float forest[100][100] = { 0 };
+	for (int row = 0; row < 100; row++) {
+		for (int col = 0; col < 100; col++) {
+			isTree = floor(random() % 2 + treeDensity);
+			if (isTree)
+			{
+				double val = pn.noise((double)row / 100. , (double)col / 100. , 0.5 ) * 100;
+				val = val - floor(val);
+				val *= 2;
+				// std::cout << val << std::endl;	
+				forest[row][col] = val;
+			}
+			else 
+				forest[row][col] = -1;
+		}	
+	}
 
 	// Eventloop
 	glm::mat4 Save = Model;
 	while (!glfwWindowShouldClose(window))
 	{
 		// Calculate the processing time for the last frame
-        currentTime = glfwGetTime();
-        camera->deltaTime = currentTime - lastTime;
-        camera->moveOnPlaneXY(currentTime - lastTime);
-        lastTime = currentTime;
+		currentTime = glfwGetTime();
+		camera->deltaTime = currentTime - lastTime;
+		camera->moveOnPlaneXY(currentTime - lastTime);
+		lastTime = currentTime;
 		// Clear the screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -253,9 +263,9 @@ int main(void)
 
 		// Camera matrix
 		// Transformationsmatrix!
-        glm::vec3 cam_position = camera->getPosition();
-        glm::vec3 cam_direction = camera->getDirection();
-        glm::vec3 cam_up = camera->getUp();
+		glm::vec3 cam_position = camera->getPosition();
+		glm::vec3 cam_direction = camera->getDirection();
+		glm::vec3 cam_up = camera->getUp();
 		View = glm::lookAt(cam_position, // Camera is at pos, in World Space
 						   cam_position + cam_direction,  // and looks at the origin
 						   cam_up); // Head is up (set to 0,-1,0 to look upside-down)
@@ -263,41 +273,44 @@ int main(void)
 		// Model matrix : an identity matrix (model will be at the origin)
 		// Transfromationsmatrix!
 		Model = glm::mat4(1.0f);
-    Save = Model;
+		Save = Model;
 
 		// Zeichne ein Segment
-    Model = Save;
-	  glm::mat4 Save2 = Model;
-    tree.render(Model, View, Projection, programID);
+		Model = Save;
+		glm::mat4 Save2 = Model;
+		tree.render(Model, View, Projection, programID);
 		//Model = glm::translate(Model, glm::vec3(0.0, 0.0, 10.0));
     //head.render(Model, View, Projection, programID);
 
 
     // Zeichne Wald
-    float scale = 0.0f;
-    for (int row = 0; row < 10; row++) {
-      for (int col = 0; col < 10; col++) {
-        if (forest[row][col] > 0) {
-          Save2 = Model;
-          float dist = camera->getDistanceTo(extractWorldCoords(Model));
-          Model = glm::rotate(Model, -90.0f, glm::vec3(1, 0, 0));
-          scale = forest[row][col];
-          Model = glm::scale(Model, glm::vec3(scale, scale, scale));
-          if (dist < 1) {
-            tree.render(Model, View, Projection, programID);
-          } else {
-            treeLow.render(Model, View, Projection, programID);
-          }
-          Model = Save2;
-        }
+		float scale = 0.0f;
+		for (int row = 0; row < 10; row++) {
+			for (int col = 0; col < 10; col++) {
+				if (forest[row][col] > 0) {
+					Save2 = Model;
+					float dist = camera->getDistanceTo(extractWorldCoords(Model));
+					Model = glm::rotate(Model, -90.0f, glm::vec3(1, 0, 0));
+					scale = forest[row][col];
+					Model = glm::scale(Model, glm::vec3(scale, scale, scale));
+					if (scale > 0) 
+					{
+						if (dist < 1) {
+							tree.render(Model, View, Projection, programID);
+						} else {
+							treeLow.render(Model, View, Projection, programID);
+						}
+					}
+					Model = Save2;
+				}
 				Model = glm::translate(Model, glm::vec3(0.0, 0.0, 1.0));
-      }
+			}
 			Model = glm::translate(Model, glm::vec3(1.0, 0.0, -10.0));
-    }
+		}
 
-    lightTransformation = glm::translate(Model, glm::vec3(0.0, 0.3, 0.0));
-    lightPos = lightTransformation * glm::vec4(0,0,0,1);
-    glUniform3f(glGetUniformLocation(programID, "LightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
+		lightTransformation = glm::translate(Model, glm::vec3(0.0, 0.3, 0.0));
+		lightPos = lightTransformation * glm::vec4(0,0,0,1);
+		glUniform3f(glGetUniformLocation(programID, "LightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
 
         // drawGround(-100.0f); // Draw lower ground grid
         // drawGround(100.0f);  // Draw upper ground grid
@@ -307,7 +320,7 @@ int main(void)
 		glfwSwapBuffers(window);
 
 		// Poll for and process events
-    glfwPollEvents();
+		glfwPollEvents();
 
         //     	glfwSetCursorPosCallback(window, NULL);
         //		...
@@ -319,7 +332,7 @@ int main(void)
 	// Close OpenGL window and terminate GLFW
 	glfwTerminate();
 
-    delete camera;
+	delete camera;
 	return 0;
 }
 
