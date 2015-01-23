@@ -4,6 +4,7 @@
 
 Object::Object(const char *filename)
 {
+    texture = 0;
     loadAssImp(filename, indices, vertices, uvs, normals);
     bindVertexBuffer();
     bindNormalBuffer();
@@ -72,7 +73,7 @@ Object::~Object()
 void Object::render(glm::mat4 model, glm::mat4 view,
                     glm::mat4 projection, GLuint programID)
 {
-    if (texture) {
+    if (texture != 0) {
         // Bind our texture in Texture Unit 0
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);

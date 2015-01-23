@@ -22,7 +22,7 @@ class Object
         GLuint vertexBufferId;
         GLuint normalBufferId;
         GLuint uvBufferId;
-        GLuint texture = NULL;
+        GLuint texture;
         vector<unsigned short> indices;
         vector<glm::vec3> vertices;
         // Texturen koordinaten, an welchem Eckpunkt ist welches pixel der Textur.
