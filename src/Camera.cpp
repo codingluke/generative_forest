@@ -103,7 +103,7 @@ void Camera::moveOnPlaneXY(double deltaTime)
         movement *= float(deltaTime);
     }
     position += movement;
-    std::cout << glm::to_string(position) << std::endl;
+    // std::cout << glm::to_string(position) << std::endl;
 }
 
 glm::vec3 Camera::getPosition() const
@@ -143,4 +143,14 @@ double Camera::getZDir() const
 glm::vec3 Camera::getUp() const 
 {
     return up;
+}
+
+float Camera::getDistanceTo(glm::vec3 worldCoords) const
+{
+    glm::vec3 distVec = position - worldCoords;
+    float res = 0;
+    float length = glm::length(distVec);
+    if (length > 0)
+        res = length;
+    return res;
 }
