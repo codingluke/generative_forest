@@ -12,7 +12,7 @@ Camera::Camera(GLFWwindow *window, glm::vec3 position, double window_width, doub
 
 void Camera::initialize(glm::vec3 position, double window_width, double window_height)
 {
-    this->position = position + glm::vec3(0.0, 0.5, 0.0);
+    this->position = position + glm::vec3(0.0, 0.05, 0.0);
     this->direction = glm::vec3(0.0, 0.0, 0.0);
     this->right = glm::vec3(0.0, 0.0, 0.0);
     this->up = glm::vec3(0.0, 0.0, 0.0);
