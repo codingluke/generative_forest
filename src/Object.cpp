@@ -15,7 +15,6 @@ Object::Object(const char *filename, const char *texFilename) : Object(filename)
 {
   // Load the texture
   texture = loadBMP_custom(texFilename);
-
 }
 
 void Object::bindUvBuffer()
@@ -77,7 +76,6 @@ void Object::render(glm::mat4 model, glm::mat4 view,
         // Bind our texture in Texture Unit 0
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
-
 	      // Set our "myTextureSampler" sampler to user Texture Unit 0
         glUniform1i(glGetUniformLocation(programID, "myTextureSampler"), 0);
     } else {

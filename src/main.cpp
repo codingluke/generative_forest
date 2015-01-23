@@ -201,8 +201,8 @@ int main(void)
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
-  Object tree("Content/trees9/tree_1.3ds", "Content/trees9/Bark___0.bmp");
-  Object head("Content/Hlow.DAE", "Content/mandrill.bmp");
+  Object treeLow("Content/trees9/tree_1_low.3ds", "Content/trees9/Bark___1.bmp");
+  Object tree("Content/trees9/tree_1_mid.3ds", "Content/trees9/Bark___S.bmp");
 
 	// Create and compile our GLSL program from the shaders
 	programID = LoadShaders("Content/StandardShading.vertexshader",
@@ -262,26 +262,30 @@ int main(void)
     Model = Save;
 	  glm::mat4 Save2 = Model;
     tree.render(Model, View, Projection, programID);
-		Model = glm::translate(Model, glm::vec3(0.0, 0.0, 10.0));
-    head.render(Model, View, Projection, programID);
-    
-    
+		//Model = glm::translate(Model, glm::vec3(0.0, 0.0, 10.0));
+    //head.render(Model, View, Projection, programID);
+
+
     // Zeichne Wald
     float scale = 0.0f;
-    // Model = glm::scale(Model, glm::vec3(1.0 / 100.0, 1.0 / 100.0, 1.0 / 100.0));
     for (int row = 0; row < 10; row++) {
       for (int col = 0; col < 10; col++) {
         if (forest[row][col] > 0) {
           Save2 = Model;
+          float dist = camera->getDistanceTo(extractWorldCoords(Model));
           Model = glm::rotate(Model, -90.0f, glm::vec3(1, 0, 0));
           scale = forest[row][col];
           Model = glm::scale(Model, glm::vec3(scale, scale, scale));
-          tree.render(Model, View, Projection, programID);
+          if (dist < 1) {
+            tree.render(Model, View, Projection, programID);
+          } else {
+            treeLow.render(Model, View, Projection, programID);
+          }
           Model = Save2;
         }
-				Model = glm::translate(Model, glm::vec3(0.0, 0.0, 2.0));
+				Model = glm::translate(Model, glm::vec3(0.0, 0.0, 1.0));
       }
-			Model = glm::translate(Model, glm::vec3(2.0, 0.0, -20.0));
+			Model = glm::translate(Model, glm::vec3(1.0, 0.0, -10.0));
     }
 
     lightTransformation = glm::translate(Model, glm::vec3(0.0, 0.3, 0.0));
@@ -302,12 +306,6 @@ int main(void)
         //		...
         //     	glfwSetCursorPosCallback(window, handleMouseMove);
 	}
-
-	// Cleanup VBO and shader
-	//glDeleteBuffers(1, &vertexbuffer);
-	//glDeleteBuffers(1, &normalbuffer);
-	//glDeleteBuffers(1, &uvbuffer);
-	//glDeleteTextures(1, &Texture);
 
 	glDeleteProgram(programID);
 
