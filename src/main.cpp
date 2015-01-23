@@ -42,16 +42,6 @@ void error_callback(int error, const char* description)
 
 Camera *camera;
 
-float x_rot = 0.0f;
-float y_rot = 0.0f;
-float z_rot = 0.0f;
-
-float x_rot_robot = 0.0f;
-float y_rot_robot = 0.0f;
-float z_rot_robot = 0.0f;
-
-float z_rot_robot_hand = 0.0f;
-
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (action == GLFW_PRESS || action == GLFW_REPEAT)
@@ -249,7 +239,8 @@ int main(void)
 		// Clear the screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
+		// Projection matrix : 45° Field of View, 4:3 ratio,
+    //                     display range : 0.1 unit <-> 100 units
 		// Transformationsmatrix!
 		Projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
 
@@ -266,13 +257,6 @@ int main(void)
 		// Transfromationsmatrix!
 		Model = glm::mat4(1.0f);
     Save = Model;
-
-		//Model = glm::rotate(Model, x_rot, glm::vec3(1, 0, 0));
-		//Model = glm::rotate(Model, y_rot, glm::vec3(0, 1, 0));
-		//Model = glm::rotate(Model, z_rot, glm::vec3(0, 0, 1));
-
-		//sendMVP();
-    //drawCS();
 
 		// Zeichne ein Segment
     Model = Save;
