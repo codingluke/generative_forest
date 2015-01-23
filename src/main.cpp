@@ -206,6 +206,7 @@ int main(void)
 
 	Object treeLow("Content/trees9/tree_1_low.3ds", "Content/trees9/Bark___1.bmp");
 	Object tree("Content/trees9/tree_1_mid.3ds", "Content/trees9/Bark___0.bmp");
+	Object treeHigh("Content/trees9/tree_1.3ds", "Content/trees9/Bark___0.bmp");
 
 	// Create and compile our GLSL program from the shaders
 	programID = LoadShaders("Content/StandardShading.vertexshader",
@@ -262,7 +263,7 @@ int main(void)
     //                     display range : 0.1 unit <-> 100 units
 		// Transformationsmatrix!
 		Projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
-    frustum.setCamInternals(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
+    frustum.setCamInternals(60.0f, 4.0f / 3.0f, 0.1f, 100.0f);
 
 		// Camera matrix
 		// Transformationsmatrix!
@@ -284,7 +285,7 @@ int main(void)
 		// Zeichne ein Segment
 		Model = Save;
 		glm::mat4 Save2 = Model;
-		tree.render(Model, View, Projection, programID);
+		//tree.render(Model, View, Projection, programID);
 		//Model = glm::translate(Model, glm::vec3(0.0, 0.0, 10.0));
     //head.render(Model, View, Projection, programID);
 
@@ -296,34 +297,35 @@ int main(void)
     //glDeleteTextures(1, &texture);
 		Model = Save;
 
+    tree.render(Model, View, Projection, programID);
 
     // Zeichne Wald
-		float scale = 0.0f;
-		for (int row = 0; row < 20; row++) {
-			for (int col = 0; col < 20; col++) {
-				if (forest[row][col] > 0) {
-					Save2 = Model;
-          glm::vec3 position = extractWorldCoords(Model);
-					float dist = camera->getDistanceTo(position);
-					Model = glm::rotate(Model, -90.0f, glm::vec3(1, 0, 0));
-					scale = forest[row][col];
-					Model = glm::scale(Model, glm::vec3(scale, scale, scale));
-					if (scale > 0 && frustum.pointInFrustum(position)) {
+    float scale = 0.0f;
+    for (int row = 0; row < 100; row++) {
+      for (int col = 0; col < 100; col++) {
+        if (forest[row][col] > 0) {
+          Save2 = Model;
+          glm::vec3 position = extractWorldCoords(Model) + glm::vec3(0.0, 0.15, 0.0);
+          float dist = camera->getDistanceTo(position);
+          Model = glm::rotate(Model, -90.0f, glm::vec3(1, 0, 0));
+          scale = forest[row][col];
+          Model = glm::scale(Model, glm::vec3(scale, scale, scale));
+          if (scale > 0 && frustum.pointInFrustum(position)) {
             //std::cerr << "Frustum OK\n";
-						if (dist < 1) {
-							tree.render(Model, View, Projection, programID);
-						} else if (dist < 7) {
-							treeLow.render(Model, View, Projection, programID);
-						}
+            if (dist < 1) {
+              tree.render(Model, View, Projection, programID);
+            } else if (dist < 6) {
+              treeLow.render(Model, View, Projection, programID);
+            }
           } else {
             //std::cerr << "Frustum scheisse \n";
           }
-					Model = Save2;
-				}
-				Model = glm::translate(Model, glm::vec3(0.0, 0.0, 0.2));
-			}
-			Model = glm::translate(Model, glm::vec3(0.2, 0.0, -4.0));
-		}
+          Model = Save2;
+        }
+        Model = glm::translate(Model, glm::vec3(0.0, 0.0, 0.2));
+      }
+      Model = glm::translate(Model, glm::vec3(0.2, 0.0, -20.0));
+    }
 
 		//lightTransformation = glm::translate(Model, glm::vec3(0.0, 0.3, 0.0));
 		//lightPos = lightTransformation * glm::vec4(0,0,0,1);

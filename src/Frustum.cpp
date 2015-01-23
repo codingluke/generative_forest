@@ -60,10 +60,10 @@ bool Frustum::pointInFrustum(const glm::vec3 &p)
     glm::vec3 v = p - cc;
 
     // compute and test the Z coordinate
-    pcz = glm::dot(v, -Z);
+    pcz = glm::dot(v, Z);
     //pcz = v.innerProduct(-Z);
     if (pcz > farD || pcz < nearD) {
-        return(true);
+        return(false);
     }
 
     // compute and test the Y coordinate
@@ -71,7 +71,7 @@ bool Frustum::pointInFrustum(const glm::vec3 &p)
     //pcy = v.innerProduct(Y);
     aux = pcz * tang;
     if (pcy > aux || pcy < -aux) {
-        return(true);
+        return(false);
     }
 
     // compute and test the X coordinate
@@ -79,7 +79,7 @@ bool Frustum::pointInFrustum(const glm::vec3 &p)
     //pcx = v.innerProduct(X);
     aux = aux * rat;
     if (pcx > aux || pcx < -aux) {
-        return(true);
+        return(false);
     }
-    return(false);
+    return(true);
 }
