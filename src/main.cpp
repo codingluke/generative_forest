@@ -300,14 +300,14 @@ int main(void)
 					scale = forest[row][col];
 					Model = glm::scale(Model, glm::vec3(scale, scale, scale));
 					if (scale > 0 && frustum.pointInFrustum(position)) {
-            std::cerr << "Frustum OK\n";
+            //std::cerr << "Frustum OK\n";
 						if (dist < 1) {
 							tree.render(Model, View, Projection, programID);
-						} else {
+						} else if (dist < 10) {
 							treeLow.render(Model, View, Projection, programID);
 						}
           } else {
-            std::cerr << "Frustum scheisse \n";
+            //std::cerr << "Frustum scheisse \n";
           }
 					Model = Save2;
 				}
