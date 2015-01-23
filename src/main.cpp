@@ -288,6 +288,17 @@ int main(void)
 		//Model = glm::translate(Model, glm::vec3(0.0, 0.0, 10.0));
     //head.render(Model, View, Projection, programID);
 
+		Model = Save;
+    Model = glm::scale(Model, vec3(3.0f, 0.001f, 3.0f));
+    //GLuint texture = loadBMP_custom("Content/ground.bmp");
+    //glActiveTexture(GL_TEXTURE0);
+    //glBindTexture(GL_TEXTURE_2D, texture);
+    //glUniform1i(glGetUniformLocation(programID, "myTextureSampler"), 0);
+    sendMVP();
+    drawCube();
+    //glDeleteTextures(1, &texture);
+		Model = Save;
+
 
     // Zeichne Wald
 		float scale = 0.0f;
