@@ -226,7 +226,7 @@ int main(void)
   // Make Perlin Noise, might need some tweaking.
 	unsigned int seed = floor(double(random() * 250));
 	PerlinNoise pn(seed);
-	double treeDensity = 0.7;
+	double treeDensity = 0.2;
 	double isTree = 0;
   // Forest matrix
 	float forest[100][100] = { 0 };
@@ -319,9 +319,9 @@ int main(void)
           }
           Model = Save2;
         }
-        Model = glm::translate(Model, glm::vec3(0.0, 0.0, 0.2));
+        Model = glm::translate(Model, glm::vec3(0.0, 0.0, 0.15));
       }
-      Model = glm::translate(Model, glm::vec3(0.2, 0.0, -20.0));
+      Model = glm::translate(Model, glm::vec3(0.15, 0.0, -15.0));
     }
 
 		//lightTransformation = glm::translate(Model, glm::vec3(0.0, 0.3, 0.0));
