@@ -280,24 +280,25 @@ int main(void)
     tree.render(Model, View, Projection, programID);
 		Model = glm::translate(Model, glm::vec3(0.0, 0.0, 10.0));
     head.render(Model, View, Projection, programID);
-
+    
+    
     // Zeichne Wald
-    //float scale = 0.0f;
-    //Model = glm::scale(Model, glm::vec3(1.0 / 100.0, 1.0 / 100.0, 1.0 / 100.0));
-    //for (int row = 0; row < 10; row++) {
-      //for (int col = 0; col < 10; col++) {
-        //if (forest[row][col] > 0) {
-          //Save2 = Model;
-          //Model = glm::rotate(Model, -90.0f, glm::vec3(1, 0, 0));
-          //scale = forest[row][col];
-          //Model = glm::scale(Model, glm::vec3(scale, scale, scale));
-          //tree.render(Model, View, Projection, programID);
-          //Model = Save2;
-        //}
-				//Model = glm::translate(Model, glm::vec3(0.0, 0.0, 2.0));
-      //}
-			//Model = glm::translate(Model, glm::vec3(2.0, 0.0, -20.0));
-    //}
+    float scale = 0.0f;
+    // Model = glm::scale(Model, glm::vec3(1.0 / 100.0, 1.0 / 100.0, 1.0 / 100.0));
+    for (int row = 0; row < 10; row++) {
+      for (int col = 0; col < 10; col++) {
+        if (forest[row][col] > 0) {
+          Save2 = Model;
+          Model = glm::rotate(Model, -90.0f, glm::vec3(1, 0, 0));
+          scale = forest[row][col];
+          Model = glm::scale(Model, glm::vec3(scale, scale, scale));
+          tree.render(Model, View, Projection, programID);
+          Model = Save2;
+        }
+				Model = glm::translate(Model, glm::vec3(0.0, 0.0, 2.0));
+      }
+			Model = glm::translate(Model, glm::vec3(2.0, 0.0, -20.0));
+    }
 
     lightTransformation = glm::translate(Model, glm::vec3(0.0, 0.3, 0.0));
     lightPos = lightTransformation * glm::vec4(0,0,0,1);
