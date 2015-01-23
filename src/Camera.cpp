@@ -38,7 +38,6 @@ Camera::~Camera()
 
 void Camera::handleMouseMove(GLFWwindow *window, double mouse_x, double mouse_y)
 {
-    std::cout << " vert: " << vert_angle << std::endl;
     double horiz_add = mouseSpeed * deltaTime * (window_mid_x - mouse_x);
     double vert_add = mouseSpeed * deltaTime * (window_mid_y - mouse_y); 
     horiz_angle += horiz_add; 
