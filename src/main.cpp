@@ -143,6 +143,15 @@ void sendMVP()
 }
 
 
+glm::vec3 extractWorldCoords(glm::mat4 mat)
+{
+	glm::vec3 pos;
+	pos[0] = mat[3][0];
+	pos[1] = mat[3][1];
+	pos[2] = mat[3][2];
+	return pos;
+}
+
 int main(void)
 {
 	// Initialise GLFW
@@ -191,9 +200,9 @@ int main(void)
 		return -1;
 	}
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-  glfwSetCursorPos(window, window_width / 2., window_height / 2.);
-  camera = new Camera(window, vec3(0.0, 0.0, 0.0), window_width, window_height);
-  std::cout << to_string(camera->getPosition()) << std::endl;
+    glfwSetCursorPos(window, window_width / 2., window_height / 2.);
+    camera = new Camera(window, vec3(0.0, 0.0, 0.0), window_width, window_height);
+    // std::cout << to_string(camera->getPosition()) << std::endl;
 	// Auf Keyboard-Events reagieren
 	glfwSetKeyCallback(window, key_callback);
   glfwSetCursorPosCallback(window, handleMouseMove);

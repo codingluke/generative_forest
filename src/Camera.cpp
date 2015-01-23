@@ -1,5 +1,6 @@
 #include "Camera.h"
 #include "glm/ext.hpp"
+#include <math.h>
 
 
 
@@ -27,7 +28,6 @@ void Camera::initialize(glm::vec3 position, double window_width, double window_h
     this->vert_angle = 0.0f;
     this->mouseSpeed = 0.05f;
     this->deltaTime = 1.0f;
-
     glfwSetCursorPos(window, window_mid_x, window_mid_y);
 }
 
@@ -38,11 +38,15 @@ Camera::~Camera()
 
 void Camera::handleMouseMove(GLFWwindow *window, double mouse_x, double mouse_y)
 {
-    // std::cout << horiz_angle << " " << vert_angle << std::endl;
+    std::cout << " vert: " << vert_angle << std::endl;
     double horiz_add = mouseSpeed * deltaTime * (window_mid_x - mouse_x);
     double vert_add = mouseSpeed * deltaTime * (window_mid_y - mouse_y); 
     horiz_angle += horiz_add; 
     vert_angle += vert_add;
+    if (vert_angle > M_PI / 2)
+        vert_angle = M_PI / 2;
+    else if (vert_angle < M_PI / (-2))
+        vert_angle = M_PI / (-2);
     // std::cout << "res " << double(window_mid_x - mouse_x) << " " << double(window_mid_y - mouse_y) << std::endl;
     direction = glm::vec3(
         cos(vert_angle) * sin(horiz_angle),
@@ -103,7 +107,7 @@ void Camera::moveOnPlaneXY(double deltaTime)
         movement *= float(deltaTime);
     }
     position += movement;
-    std::cout << glm::to_string(position) << std::endl;
+    // std::cout << glm::to_string(position) << std::endl;
 }
 
 glm::vec3 Camera::getPosition() const
@@ -143,4 +147,14 @@ double Camera::getZDir() const
 glm::vec3 Camera::getUp() const 
 {
     return up;
+}
+
+float Camera::getDistanceTo(glm::vec3 worldCoords) const
+{
+    glm::vec3 distVec = position - worldCoords;
+    float res = 0;
+    float length = glm::length(distVec);
+    if (length > 0)
+        res = length;
+    return res;
 }

@@ -58,6 +58,8 @@ public:
 
     glm::vec3 getUp() const;
 
+    float getDistanceTo(glm::vec3 worldCoords) const;
+
 private:
     void initialize(glm::vec3 position, double window_width, double window_height);
 
