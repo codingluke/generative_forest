@@ -15,6 +15,8 @@
 #include "glm/ext.hpp"
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Object.h"
+
 using namespace glm;
 
 // Achtung, die OpenGL-Tutorials nutzen glfw 2.7, glfw kommt mit einem veränderten API schon in der Version 3
@@ -253,62 +255,18 @@ int main(void)
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
-	// UEBUNG 5 //
-	std::vector<unsigned short> indices; // Eckpunkte des Objektes
-	std::vector<glm::vec3> vertices; // Eckpunkte des Objektes
-	std::vector<glm::vec2> uvs; // Texturen koordinaten, an welchem Eckpunkt ist welches pixel der Textur.
-	std::vector<glm::vec3> normals; // Beleuchtung der Eckpunkte, winkel des Lichtes
-
-	//bool res = loadOBJ("Content/ladybird.obj", vertices, uvs, normals);
-	bool res = loadAssImp("Content/trees9/tree_1.3ds", indices, vertices, uvs, normals);
-	//bool res = loadOBJ("Content/teapot.obj", vertices, uvs, normals);
-
-	// Jedes Objekt eigenem VAO (VertexArrayObject) zuordnen, damit mehrere Objekte moeglich sind
-	// VAOs sind Container fuer mehrere Buffer, die zusammen gesetzt werden sollen.
-	GLuint VertexArrayIDTeapot;
-	glGenVertexArrays(1, &VertexArrayIDTeapot);
-	glBindVertexArray(VertexArrayIDTeapot);
-
-	// Ein ArrayBuffer speichert Daten zu Eckpunkten (hier xyz bzw. Position)
-	GLuint vertexbuffer;
-	glGenBuffers(1, &vertexbuffer); // Kennung erhalten
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer); // Daten zur Kennung definieren
-	// Buffer zugreifbar für die Shader machen
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
-	// Erst nach glEnableVertexAttribArray kann DrawArrays auf die Daten zugreifen...
-	// Mapping zum Vertex Shader
-	glEnableVertexAttribArray(0); // siehe layout im vertex shader: location = 0
-	glVertexAttribPointer(0,  // location = 0
-				  3,  // Datenformat vec3: 3 floats fuer xyz
-				  GL_FLOAT,
-				  GL_FALSE, // Fixedpoint data normalisieren ?
-				  0, // Eckpunkte direkt hintereinander gespeichert
-				  (void*) 0); // abweichender Datenanfang ?
-	// END UEBUNG 5 //
-
-	GLuint normalbuffer; // Hier alles analog für Normalen in location == 2
-	glGenBuffers(1, &normalbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
-	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
-	glEnableVertexAttribArray(2); // siehe layout im vertex shader
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
-	GLuint uvbuffer; // Hier alles analog für Texturkoordinaten in location == 1 (2 floats u und v!)
-	glGenBuffers(1, &uvbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-	glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], GL_STATIC_DRAW);
-	glEnableVertexAttribArray(1); // siehe layout im vertex shader
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+  Object tree("Content/trees9/tree_1.3ds");
+  Object head("Content/Hlow.DAE");
 
 	// Load the texture
-	GLuint Texture = loadBMP_custom("Content/mandrill.bmp");
+	//GLuint Texture = loadBMP_custom("Content/mandrill.bmp");
 
 	// Bind our texture in Texture Unit 0
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, Texture);
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, Texture);
 
 	// Set our "myTextureSampler" sampler to user Texture Unit 0
-	glUniform1i(glGetUniformLocation(programID, "myTextureSampler"), 0);
+	//glUniform1i(glGetUniformLocation(programID, "myTextureSampler"), 0);
 
 	// Create and compile our GLSL program from the shaders
 	programID = LoadShaders("Content/StandardShading.vertexshader", "Content/StandardShading.fragmentshader");
@@ -384,11 +342,9 @@ int main(void)
         if (forest[row][col] > 0) {
           Save2 = Model;
           Model = glm::rotate(Model, -90.0f, glm::vec3(1, 0, 0));
-          scale = forest[row][col] / 2.0f;
+          scale = forest[row][col];
           Model = glm::scale(Model, glm::vec3(scale, scale, scale));
-          sendMVP();
-          glBindVertexArray(VertexArrayIDTeapot);
-          glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+          tree.render(Model, View, Projection, programID);
           Model = Save2;
         }
 		    Model = glm::translate(Model, glm::vec3(0.0, 0.0, 2.0));
@@ -416,10 +372,10 @@ int main(void)
 	}
 
 	// Cleanup VBO and shader
-	glDeleteBuffers(1, &vertexbuffer);
-	glDeleteBuffers(1, &normalbuffer);
-	glDeleteBuffers(1, &uvbuffer);
-	glDeleteTextures(1, &Texture);
+	//glDeleteBuffers(1, &vertexbuffer);
+	//glDeleteBuffers(1, &normalbuffer);
+	//glDeleteBuffers(1, &uvbuffer);
+	//glDeleteTextures(1, &Texture);
 
 	glDeleteProgram(programID);
 
