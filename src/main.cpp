@@ -16,6 +16,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Object.h"
+#include "Frustum.h"
 
 using namespace glm;
 
@@ -229,6 +230,7 @@ int main(void)
 
 	// Eventloop
 	glm::mat4 Save = Model;
+  Frustum frustum;
 	while (!glfwWindowShouldClose(window))
 	{
 		// Calculate the processing time for the last frame
@@ -243,15 +245,18 @@ int main(void)
     //                     display range : 0.1 unit <-> 100 units
 		// Transformationsmatrix!
 		Projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
+    frustum.setCamInternals(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
 
 		// Camera matrix
 		// Transformationsmatrix!
-        glm::vec3 cam_position = camera->getPosition();
-        glm::vec3 cam_direction = camera->getDirection();
-        glm::vec3 cam_up = camera->getUp();
+    glm::vec3 cam_position = camera->getPosition();
+    glm::vec3 cam_direction = camera->getDirection();
+    glm::vec3 cam_up = camera->getUp();
+    glm::vec3 l = cam_position + cam_direction;
 		View = glm::lookAt(cam_position, // Camera is at (0,0,-5), in World Space
-						   cam_position + cam_direction,  // and looks at the origin
+						   l,  // and looks at the origin
 						   cam_up); // Head is up (set to 0,-1,0 to look upside-down)
+    frustum.setCamDef(cam_position, l, cam_up);
 
 		// Model matrix : an identity matrix (model will be at the origin)
 		// Transfromationsmatrix!
@@ -272,14 +277,20 @@ int main(void)
       for (int col = 0; col < 10; col++) {
         if (forest[row][col] > 0) {
           Save2 = Model;
-          float dist = camera->getDistanceTo(extractWorldCoords(Model));
+          glm::vec3 position = extractWorldCoords(Model);
+          float dist = camera->getDistanceTo(position);
           Model = glm::rotate(Model, -90.0f, glm::vec3(1, 0, 0));
           scale = forest[row][col];
           Model = glm::scale(Model, glm::vec3(scale, scale, scale));
-          if (dist < 1) {
-            tree.render(Model, View, Projection, programID);
-          } else if (dist < 10) {
-            treeLow.render(Model, View, Projection, programID);
+          if (frustum.pointInFrustum(position)) {
+            std::cerr << "Frustum OK\n";
+            if (dist < 1) {
+              tree.render(Model, View, Projection, programID);
+            } else if (dist < 10) {
+              treeLow.render(Model, View, Projection, programID);
+            }
+          } else {
+            std::cerr << "Frustum scheisse \n";
           }
           Model = Save2;
         }

@@ -5,27 +5,33 @@
 #include <glm/ext.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <iostream>
+
 #define ANG2RAD 3.14159265358979323846/180.0
 
 Frustum::Frustum()
 {
 }
 
-void Frustum::setCamInternals(float angle, float ratio,
+Frustum::~Frustum()
+{
+}
+
+void Frustum::setCamInternals(float angle, float rat,
                               float nearD, float farD)
 {
     // store the information
-    this->ratio = ratio;
+    this->rat = rat;
     this->nearD = nearD;
     this->farD = farD;
 
     // compute width and height of the near section
     tang = (float) tan(ANG2RAD * angle * 0.5);
     height = nearD * tang;
-    width = height * ratio;
+    width = height * rat;
 }
 
-void Frustum::setCamDef(glm::vec3 &p, glm::vec3 &l, glm::vec3 &u)
+void Frustum::setCamDef(const glm::vec3 &p, const glm::vec3 &l, const glm::vec3 &u)
 {
     //cc = p.copy();
     cc = p;
@@ -33,18 +39,20 @@ void Frustum::setCamDef(glm::vec3 &p, glm::vec3 &l, glm::vec3 &u)
     // compute the Z axis of the camera referential
     // this axis points in the same direction from
     // the looking direction
-    Z = glm::normalize(l - p);
+    Z = l - p;
+    Z = glm::normalize(Z);
     //Z.normalize();
 
     // X axis of camera with given "up" vector and Z axis
-    X = glm::normalize(Z * u);
+    X = glm::cross(Z, u);
+    X = glm::normalize(X);
     //X.normalize();
 
     // the real "up" vector is the dot product of X and Z
-    Y = X * Z;
+    Y = glm::cross(X, Z);
 }
 
-int Frustum::pointInFrustum(glm::vec3 &p)
+bool Frustum::pointInFrustum(const glm::vec3 &p)
 {
     float pcz, pcx, pcy, aux;
 
@@ -55,7 +63,7 @@ int Frustum::pointInFrustum(glm::vec3 &p)
     pcz = glm::dot(v, -Z);
     //pcz = v.innerProduct(-Z);
     if (pcz > farD || pcz < nearD) {
-        return(false);
+        return(true);
     }
 
     // compute and test the Y coordinate
@@ -63,15 +71,15 @@ int Frustum::pointInFrustum(glm::vec3 &p)
     //pcy = v.innerProduct(Y);
     aux = pcz * tang;
     if (pcy > aux || pcy < -aux) {
-        return(false);
+        return(true);
     }
 
     // compute and test the X coordinate
     pcx = glm::dot(v, X);
     //pcx = v.innerProduct(X);
-    aux = aux * ratio;
+    aux = aux * rat;
     if (pcx > aux || pcx < -aux) {
-        return(false);
+        return(true);
     }
-    return(true);
+    return(false);
 }

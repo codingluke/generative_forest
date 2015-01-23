@@ -1,5 +1,5 @@
-#ifndef OBJECT_H
-#define OBJECT_H
+#ifndef FRUSTUM_H
+#define FRUSTUM_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,16 +12,16 @@ class Frustum
     private:
         glm::vec3 cc; // camera position
         glm::vec3 X,Y,Z; // the camera referential
-        float nearD, farD, ratio, width, height, tang;
+        float nearD, farD, rat, width, height, tang;
 
     public:
         Frustum();
         ~Frustum();
 
-        void setCamInternals(float angle, float ratio,
+        void setCamInternals(float angle, float rat,
                              float nearD, float farD);
-        void setCamDef(glm::vec3 &p, glm::vec3 &l, glm::vec3 &u);
-        int pointInFrustum(glm::vec3 &p);
+        void setCamDef(const glm::vec3 &p, const glm::vec3 &l, const glm::vec3 &u);
+        bool pointInFrustum(const glm::vec3 &p);
 };
 
 #endif
