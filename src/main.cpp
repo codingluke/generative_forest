@@ -200,12 +200,12 @@ int main(void)
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetCursorPosCallback(window, handleMouseMove);
 	// Dark blue background
-	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
 	Object treeLow("Content/trees9/tree_1_low.3ds", "Content/trees9/Bark___1.bmp");
-	Object tree("Content/trees9/tree_1_mid.3ds", "Content/trees9/Bark___S.bmp");
+	Object tree("Content/trees9/tree_1_mid.3ds", "Content/trees9/Bark___0.bmp");
 
 	// Create and compile our GLSL program from the shaders
 	programID = LoadShaders("Content/StandardShading.vertexshader",
@@ -214,8 +214,8 @@ int main(void)
 	glUseProgram(programID);
 
 	// Lichtquelle positionierung
-	glm::vec4 lightPos = glm::vec4(4,4,-4,0);
-	glUniform3f(glGetUniformLocation(programID, "LightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
+	//glm::vec4 lightPos = glm::vec4(4,4,-4,0);
+	//glUniform3f(glGetUniformLocation(programID, "LightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
 
 	glm::mat4 lightTransformation(1.0);
 
@@ -267,6 +267,7 @@ int main(void)
 		// Camera matrix
 		// Transformationsmatrix!
     glm::vec3 cam_position = camera->getPosition();
+	  glUniform3f(glGetUniformLocation(programID, "LightPosition_worldspace"), cam_position.x, cam_position.y, cam_position.z);
     glm::vec3 cam_direction = camera->getDirection();
     glm::vec3 cam_up = camera->getUp();
     glm::vec3 l = cam_position + cam_direction;
@@ -311,14 +312,14 @@ int main(void)
           }
 					Model = Save2;
 				}
-				Model = glm::translate(Model, glm::vec3(0.0, 0.0, 1.0));
+				Model = glm::translate(Model, glm::vec3(0.0, 0.0, 0.3));
 			}
-			Model = glm::translate(Model, glm::vec3(1.0, 0.0, -10.0));
+			Model = glm::translate(Model, glm::vec3(0.3, 0.0, -3.0));
 		}
 
-		lightTransformation = glm::translate(Model, glm::vec3(0.0, 0.3, 0.0));
-		lightPos = lightTransformation * glm::vec4(0,0,0,1);
-		glUniform3f(glGetUniformLocation(programID, "LightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
+		//lightTransformation = glm::translate(Model, glm::vec3(0.0, 0.3, 0.0));
+		//lightPos = lightTransformation * glm::vec4(0,0,0,1);
+		//glUniform3f(glGetUniformLocation(programID, "LightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
 
         // drawGround(-100.0f); // Draw lower ground grid
         // drawGround(100.0f);  // Draw upper ground grid

@@ -26,7 +26,7 @@ void main(){
 	
 	// float LightPower = 50.0f; 
 	// float LightPower = 50.0f; Uebung 15
-	float LightPower = 5.0f; // Uebung 15
+	float LightPower = 1.0f; // Uebung 15
 
 
 	// Material properties
