@@ -225,7 +225,7 @@ int main(void)
   // Make Perlin Noise, might need some tweaking.
 	unsigned int seed = floor(double(random() * 250));
 	PerlinNoise pn(seed);
-	double treeDensity = 0.85;
+	double treeDensity = 0.7;
 	double isTree = 0;
   // Forest matrix
 	float forest[100][100] = { 0 };
@@ -289,11 +289,8 @@ int main(void)
     //head.render(Model, View, Projection, programID);
 
 		Model = Save;
-    Model = glm::scale(Model, vec3(3.0f, 0.001f, 3.0f));
-    //GLuint texture = loadBMP_custom("Content/ground.bmp");
-    //glActiveTexture(GL_TEXTURE0);
-    //glBindTexture(GL_TEXTURE_2D, texture);
-    //glUniform1i(glGetUniformLocation(programID, "myTextureSampler"), 0);
+    Model = glm::scale(Model, vec3(4.0f, 0.009f, 4.0f));
+    Model = glm::translate(Model, vec3(0.7f, 0.0f, 0.7f));
     sendMVP();
     drawCube();
     //glDeleteTextures(1, &texture);
@@ -302,8 +299,8 @@ int main(void)
 
     // Zeichne Wald
 		float scale = 0.0f;
-		for (int row = 0; row < 10; row++) {
-			for (int col = 0; col < 10; col++) {
+		for (int row = 0; row < 20; row++) {
+			for (int col = 0; col < 20; col++) {
 				if (forest[row][col] > 0) {
 					Save2 = Model;
           glm::vec3 position = extractWorldCoords(Model);
@@ -315,7 +312,7 @@ int main(void)
             //std::cerr << "Frustum OK\n";
 						if (dist < 1) {
 							tree.render(Model, View, Projection, programID);
-						} else if (dist < 10) {
+						} else if (dist < 7) {
 							treeLow.render(Model, View, Projection, programID);
 						}
           } else {
@@ -323,9 +320,9 @@ int main(void)
           }
 					Model = Save2;
 				}
-				Model = glm::translate(Model, glm::vec3(0.0, 0.0, 0.3));
+				Model = glm::translate(Model, glm::vec3(0.0, 0.0, 0.2));
 			}
-			Model = glm::translate(Model, glm::vec3(0.3, 0.0, -3.0));
+			Model = glm::translate(Model, glm::vec3(0.2, 0.0, -4.0));
 		}
 
 		//lightTransformation = glm::translate(Model, glm::vec3(0.0, 0.3, 0.0));
