@@ -1,9 +1,6 @@
 #include "Camera.h"
 #include "glm/ext.hpp"
 #include <math.h>
-#include <iostream>
-
-
 
 Camera::Camera(GLFWwindow *window, glm::vec3 position, double window_width, double window_height)
 {
@@ -53,14 +50,6 @@ void Camera::handleMouseMove(GLFWwindow *window, double mouse_x, double mouse_y)
         sin(vert_angle),
         cos(vert_angle) * cos(horiz_angle)
     );
-    std::cerr << "Position: " << position[0] << ":" << position[1] << ":"
-              << position[2] << "\n";
-    std::cerr << "Direction: " << direction[0] << ":" << direction[1] << ":"
-              << direction[2] << "\n";
-    std::cerr << "Rigth: " << right[0] << ":" << right[1] << ":"
-              << right[2] << "\n";
-    std::cerr << "Up: " << up[0] << ":" << up[1] << ":"
-              << up[2] << "\n";
     // std::cout << "direction:" << glm::to_string(direction) << std::endl;
     right = glm::vec3(
         sin(horiz_angle - 3.14f/2.0f),
