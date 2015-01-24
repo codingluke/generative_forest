@@ -38,12 +38,17 @@ using namespace glm;
 
 #include "PerlinNoise.h"
 
+glm::mat4 Projection;
+glm::mat4 View;
+glm::mat4 Model;
+GLuint programID;
+
+Camera *camera;
+
 void error_callback(int error, const char* description)
 {
 	fputs(description, stderr);
 }
-
-Camera *camera;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -56,22 +61,18 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			break;
 			case GLFW_KEY_D:
 			camera->key_right = true;
-    		//y_rot_robot += 5.f;
 			break;
 
 			case GLFW_KEY_A:
 			camera->key_left = true;
-            //y_rot_robot -= 5.f;
 			break;
 
 			case GLFW_KEY_W:
 			camera->key_up = true;
-    		//x_rot_robot += 5.f;
 			break;
 
 			case GLFW_KEY_S:
 			camera->key_down = true;
-            //x_rot_robot -= 5.f;
 			break;
 			default:
 			break;
@@ -83,22 +84,18 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		{
 			case GLFW_KEY_D:
 			camera->key_right = false;
-            //y_rot_robot += 5.f;
 			break;
 
 			case GLFW_KEY_A:
 			camera->key_left = false;
-            //y_rot_robot -= 5.f;
 			break;
 
 			case GLFW_KEY_W:
 			camera->key_up = false;
-            //x_rot_robot += 5.f;
 			break;
 
 			case GLFW_KEY_S:
 			camera->key_down = false;
-            //x_rot_robot -= 5.f;
 			break;
 			default:
 			break;
@@ -111,30 +108,18 @@ void handleMouseMove(GLFWwindow *window, double mouse_x, double mouse_y)
 	camera->handleMouseMove(window, mouse_x, mouse_y);
 }
 
-
-
-
-// Diese Drei Matrizen global (Singleton-Muster), damit sie jederzeit modifiziert und
-// an die Grafikkarte geschickt werden koennen
-glm::mat4 Projection;
-glm::mat4 View;
-glm::mat4 Model;
-GLuint programID;
-
-
 void sendMVP()
 {
 	glUniformMatrix4fv(glGetUniformLocation(programID, "M"), 1, GL_FALSE, &Model[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(programID, "V"), 1, GL_FALSE, &View[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(programID, "P"), 1, GL_FALSE, &Projection[0][0]);
 
-	// Our ModelViewProjection : multiplication of our 3 matrices
+	// ModelViewProjection 
 	glm::mat4 MVP = Projection * View * Model;
 	// Send our transformation to the currently bound shader,
 	// in the "MVP" uniform, konstant fuer alle Eckpunkte
 	glUniformMatrix4fv(glGetUniformLocation(programID, "MVP"), 1, GL_FALSE, &MVP[0][0]);
 }
-
 
 glm::vec3 extractWorldCoords(glm::mat4 mat)
 {
@@ -154,17 +139,14 @@ int main(void)
 		exit(EXIT_FAILURE);
 	}
 
-	// Fehler werden auf stderr ausgegeben, s. o.
 	glfwSetErrorCallback(error_callback);
-
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-	// Open a window and create its OpenGL context
-	// glfwWindowHint vorher aufrufen, um erforderliche Resourcen festzulegen
+	
 	int window_width = 1024;
 	int window_height = 768;
 	GLFWwindow* window = glfwCreateWindow(window_width, // Breite
@@ -172,20 +154,14 @@ int main(void)
 										  "CG - Tutorial", // Ueberschrift
 										  NULL,  // windowed mode
 										  NULL); // shared windoe
-
 	if (!window)
 	{
 		glfwTerminate();
 		exit(EXIT_FAILURE);
 	}
-
-
-	// Make the window's context current (wird nicht automatisch gemacht)
 	glfwMakeContextCurrent(window);
 
-	// Initialize GLEW
-	// GLEW ermöglicht Zugriff auf OpenGL-API > 1.1
-	glewExperimental = true; // Needed for core profile
+	glewExperimental = true;
 
 	if (glewInit() != GLEW_OK)
 	{
@@ -200,39 +176,31 @@ int main(void)
 	camera = new Camera(window, glm::vec3(-1.5, 0.07, -1.4), window_width, window_height);
 	camera->setDirection(0.0, 0.7);
 	
-
-	
-    // std::cout << to_string(camera->getPosition()) << std::endl;
-	// Auf Keyboard-Events reagieren
-	
-	// Dark blue background
+	// Black background
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
+	// Load tree models with three differen detail levels
 	Object treeLow("Content/trees9/tree_1_low_new.3ds", "Content/trees9/Bark___1.bmp");
 	Object treeMid("Content/trees9/tree_1_mid_new.3ds", "Content/trees9/Bark___0.bmp");
 	Object treeHigh("Content/trees9/tree_1_high_new.3ds", "Content/trees9/Bark___0.bmp");
 
-	// Create and compile our GLSL program from the shaders
+	// Create and compile GLSL program from the shaders
 	programID = LoadShaders("Content/StandardShading.vertexshader",
 		"Content/StandardShading.fragmentshader");
-	// Shader auch benutzen !
+	
 	glUseProgram(programID);
 
-	// Lichtquelle positionierung
-	//glm::vec4 lightPos = glm::vec4(4,4,-4,0);
-	//glUniform3f(glGetUniformLocation(programID, "LightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
-
+	// Set up light
 	glm::mat4 lightTransformation(1.0);
 
-	
-
-  // Make Perlin Noise, might need some tweaking.
+  // Make Perlin Noise
 	unsigned int seed = floor(double(random() * 250));
 	PerlinNoise pn(seed);
 	double treeDensity = 0.2;
 	double isTree = 0;
+
   // Forest matrix
 	float forest[100][100] = { 0 };
 	for (int row = 0; row < 100; row++) {
@@ -250,11 +218,12 @@ int main(void)
 				forest[row][col] = -1;
 		}
 	}
-
-	// Eventloop
-	glm::mat4 Save = Model;
+	
+	glm::mat4 Save;
+	glm::mat4 Save2;
 	Frustum frustum;
 	float lastTime = 0.0;
+	// Eventloop
 	while (!glfwWindowShouldClose(window))
 	{
 		// Calculate the processing time for the last frame
@@ -266,47 +235,41 @@ int main(void)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Projection matrix : 45° Field of View, 4:3 ratio,
-    //                     display range : 0.1 unit <-> 100 units
-		// Transformationsmatrix!
+   		//                     display range : 0.1 unit <-> 100 units
 		Projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
 		frustum.setCamInternals(60.0f, 4.0f / 3.0f, 0.1f, 100.0f);
 
-		// Camera matrix
-		// Transformationsmatrix!
+		// Update camera posittion
 		glm::vec3 cam_position = camera->getPosition();
+		// Update light position (= camera position)
 		glUniform3f(glGetUniformLocation(programID, "LightPosition_worldspace"), cam_position.x, cam_position.y, cam_position.z);
+		// Update view orientation
 		glm::vec3 cam_direction = camera->getDirection();
 		glm::vec3 cam_up = camera->getUp();
 		glm::vec3 l = cam_position + cam_direction;
 		View = glm::lookAt(cam_position, // Camera is at (0,0,-5), in World Space
 						   l,  // and looks at the origin
 						   cam_up); // Head is up (set to 0,-1,0 to look upside-down)
+		// Upddate frustum location and orientation
 		frustum.setCamDef(cam_position, l, cam_up);
 
-		// Model matrix : an identity matrix (model will be at the origin)
-		// Transfromationsmatrix!
+		// Identity matrix for model, set in origin
 		Model = glm::mat4(1.0f);
 		Save = Model;
-
-		// Zeichne ein Segment
-		Model = Save;
-		glm::mat4 Save2 = Model;
-		//tree.render(Model, View, Projection, programID);
-		//Model = glm::translate(Model, glm::vec3(0.0, 0.0, 10.0));
-    //head.render(Model, View, Projection, programID);
-
+		Save2 = Model;
+		
+		// Draw ground
 		Model = Save;
 		Model = glm::scale(Model, vec3(4.0f, 0.009f, 4.0f));
 		Model = glm::translate(Model, vec3(0.7f, 0.0f, 0.7f));
 		sendMVP();
 		drawCube();
-    //glDeleteTextures(1, &texture);
-		Model = Save;
-
+		
+		// Fallen tree
 		// treeHigh.render(Model, View, Projection, programID);
 
-    // Zeichne Wald
-
+    	// Draw forest
+		Model = Save;
 		float scale = 0.0f;
 		for (int row = 0; row < 100; row++) {
 			for (int col = 0; col < 100; col++) {
@@ -333,28 +296,12 @@ int main(void)
 			Model = glm::translate(Model, glm::vec3(0.2, 0.0, -20.0));
 		}
 
-
-		//lightTransformation = glm::translate(Model, glm::vec3(0.0, 0.3, 0.0));
-		//lightPos = lightTransformation * glm::vec4(0,0,0,1);
-		//glUniform3f(glGetUniformLocation(programID, "LightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
-
-        // drawGround(-100.0f); // Draw lower ground grid
-        // drawGround(100.0f);  // Draw upper ground grid
-		// Swap buffers, hintergrundspeicher in vordergrundspeicher laden.
-		// Das Bild wird zu erst im hintergrundspeicher vollständig gezeichnet und dann
-		// in den Vordergrundspeicher geladen, so wird "flakern" beim rendering vermieden.
 		glfwSwapBuffers(window);
-
 		// Poll for and process events
 		glfwPollEvents();
-
-        //     	glfwSetCursorPosCallback(window, NULL);
-        //		...
-        //     	glfwSetCursorPosCallback(window, handleMouseMove);
 	}
 
 	glDeleteProgram(programID);
-
 	// Close OpenGL window and terminate GLFW
 	glfwTerminate();
 

@@ -62,6 +62,7 @@ void Camera::handleMouseMove(GLFWwindow *window, double mouse_x, double mouse_y)
     up = glm::cross(right, direction);
     glfwSetCursorPos(window, window_mid_x, window_mid_y);
 }
+
 const double Camera::toRads(const double &angleInDegrees) const
 {
     return angleInDegrees * ( 3.14592654 / 180.);
