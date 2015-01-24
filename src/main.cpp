@@ -231,7 +231,7 @@ int main(void)
   // Make Perlin Noise, might need some tweaking.
 	unsigned int seed = floor(double(random() * 250));
 	PerlinNoise pn(seed);
-	double treeDensity = 0.7;
+	double treeDensity = 0.2;
 	double isTree = 0;
   // Forest matrix
 	float forest[100][100] = { 0 };
@@ -306,6 +306,7 @@ int main(void)
 		tree.render(Model, View, Projection, programID);
 
     // Zeichne Wald
+
 		float scale = 0.0f;
 		for (int row = 0; row < 100; row++) {
 			for (int col = 0; col < 100; col++) {
@@ -329,6 +330,7 @@ int main(void)
 			}
 			Model = glm::translate(Model, glm::vec3(0.2, 0.0, -20.0));
 		}
+
 
 		//lightTransformation = glm::translate(Model, glm::vec3(0.0, 0.3, 0.0));
 		//lightPos = lightTransformation * glm::vec4(0,0,0,1);
