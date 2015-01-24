@@ -173,8 +173,10 @@ int main(void)
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetCursorPosCallback(window, handleMouseMove);
 	glfwSetCursorPos(window, window_width / 2., window_height / 2.);
-	camera = new Camera(window, glm::vec3(-1.5, 0.07, -1.4), window_width, window_height);
-	camera->setDirection(0.0, 0.7);
+	// camera = new Camera(window, glm::vec3(-1.5, 0.07, -1.4), window_width, window_height);
+	camera = new Camera(window, glm::vec3(1.5, 0.11, 1.4), window_width, window_height);
+	
+	camera->setDirection(0.00001, 0.7);
 	
 	// Black background
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -186,6 +188,7 @@ int main(void)
 	Object treeMid("Content/trees9/tree_1_mid_new.3ds", "Content/trees9/Bark___0.bmp");
 	Object treeHigh("Content/trees9/tree_1_high_new.3ds", "Content/trees9/Bark___0.bmp");
 
+	Object tile("Content/tile.3ds", "Content/ground.bmp");
 	// Create and compile GLSL program from the shaders
 	programID = LoadShaders("Content/StandardShading.vertexshader",
 		"Content/StandardShading.fragmentshader");
@@ -223,6 +226,7 @@ int main(void)
 	glm::mat4 Save2;
 	Frustum frustum;
 	float lastTime = 0.0;
+
 	// Eventloop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -239,7 +243,7 @@ int main(void)
 		Projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
 		frustum.setCamInternals(60.0f, 4.0f / 3.0f, 0.1f, 100.0f);
 
-		// Update camera posittion
+		// Update camera position
 		glm::vec3 cam_position = camera->getPosition();
 		// Update light position (= camera position)
 		glUniform3f(glGetUniformLocation(programID, "LightPosition_worldspace"), cam_position.x, cam_position.y, cam_position.z);
@@ -260,11 +264,33 @@ int main(void)
 		
 		// Draw ground
 		Model = Save;
-		Model = glm::scale(Model, vec3(4.0f, 0.009f, 4.0f));
-		Model = glm::translate(Model, vec3(0.7f, 0.0f, 0.7f));
-		sendMVP();
-		drawCube();
+		for (int row = 0; row < 100; row++) {
+			for (int col = 0; col < 100; col++) {
+				
+					Save2 = Model;
+					glm::vec3 position = extractWorldCoords(Model) + glm::vec3(0.0, 0.15, 0.0);
+					float dist = camera->getDistanceTo(position);
+					Model = glm::translate(Model, vec3(0.0f, 0.003f, 0.0f));
+					Model = glm::rotate(Model, 90.0f, glm::vec3(1, 0, 0));
+					Model = glm::scale(Model, vec3(0.1f, 0.1f, 0.f));
+					
+					if (dist < 4) 
+					{
+							tile.render(Model, View, Projection, programID);
+					}
+					
+					Model = Save2;
+				
+				Model = glm::translate(Model, glm::vec3(0.0, 0.0, 0.2));
+			}
+			Model = glm::translate(Model, glm::vec3(0.2, 0.0, -20.0));
+		}
+		// Model = glm::translate(Model, vec3(0.7f, 0.0f, 0.7f));
 		
+		
+		//sendMVP();
+		//drawCube();
+		// tile.render(Model, View, Projection, programID);
 		// Fallen tree
 		// treeHigh.render(Model, View, Projection, programID);
 

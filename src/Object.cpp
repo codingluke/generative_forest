@@ -81,6 +81,7 @@ void Object::render(glm::mat4 model, glm::mat4 view,
     } else {
         glBindTexture(GL_TEXTURE_2D, 0);
     }
+    
     sendMVP(model, view, projection, programID);
     glBindVertexArray(vertexArrayId);
     glDrawArrays(GL_TRIANGLES, 0, vertices.size());

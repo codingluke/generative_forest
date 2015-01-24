@@ -27,6 +27,7 @@ void Camera::initialize(glm::vec3 position, double window_width, double window_h
     this->vert_angle = 0.0f;
     this->mouseSpeed = 0.03f;
     this->deltaTime = 0.0f;
+    firstMouseInput = false;
 }
 
 Camera::~Camera()
@@ -34,9 +35,18 @@ Camera::~Camera()
 
 void Camera::handleMouseMove(GLFWwindow *window, double mouse_x, double mouse_y)
 {
-
-    double horiz_add = mouseSpeed * deltaTime * (window_mid_x - mouse_x);
-    double vert_add = mouseSpeed * deltaTime * (window_mid_y - mouse_y);
+    double horiz_add = 0;
+    double vert_add = 0;
+    // This is a dirty, dirty hack to keep the camera from juming on first mouse input.
+    if (!firstMouseInput)
+    {
+        firstMouseInput = true;
+    }
+    else
+    {
+        horiz_add = mouseSpeed * deltaTime * (window_mid_x - mouse_x);
+        vert_add = mouseSpeed * deltaTime * (window_mid_y - mouse_y);
+    }
     horiz_angle += horiz_add;
     vert_angle += vert_add;
     if (vert_angle > M_PI / 2)
@@ -157,6 +167,7 @@ void Camera::setDirection(float vert, float hor)
     this->horiz_angle = hor;
     this->vert_angle = vert;
     handleMouseMove(window, window_mid_x, window_mid_y);
+    firstMouseInput = false;
 }
 
 

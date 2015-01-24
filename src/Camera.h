@@ -8,6 +8,7 @@
 
 class Camera
 {
+private:
     glm::vec3 position;
     glm::vec3 direction;
     glm::vec3 right;
@@ -23,7 +24,7 @@ class Camera
 
     double mouseSpeed;
     double deltaTime;
-
+    bool firstMouseInput;
 public:
     bool key_up;
     bool key_down;
