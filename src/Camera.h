@@ -38,7 +38,6 @@ public:
     ~Camera();
 
     void handleMouseMove(GLFWwindow *window, double mouse_x, double mouse_y);
-    const double toRads(const double &angleInDegrees) const;
     void move();
     void moveOnPlaneXY();
 
@@ -61,6 +60,7 @@ public:
 
     void setDirection(glm::vec3 newDirection);
     void setDirection(float vert, float hor);
+
 private:
     void initialize(glm::vec3 position, double window_width, double window_height);
 

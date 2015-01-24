@@ -16,33 +16,31 @@ using namespace std;
 
 class Object
 {
-    private:
-        GLuint vertexArrayId;
-        GLuint vertexBufferId;
-        GLuint normalBufferId;
-        GLuint uvBufferId;
-        GLuint texture;
-        vector<unsigned short> indices;
-        vector<glm::vec3> vertices;
-        // Texturen koordinaten, an welchem Eckpunkt ist welches pixel der Textur.
-        vector<glm::vec2> uvs;
-        // Beleuchtung der Eckpunkte, winkel des Lichtes
-        vector<glm::vec3> normals;
+private:
+    GLuint vertexArrayId;
+    GLuint vertexBufferId;
+    GLuint normalBufferId;
+    GLuint uvBufferId;
+    GLuint texture;
+    vector<unsigned short> indices;
+    vector<glm::vec3> vertices;
+    vector<glm::vec2> uvs;
+    vector<glm::vec3> normals;
 
-    public:
-        Object(const char *filename);
-        Object(const char *filename, const char *texFilename);
-        ~Object(void);
+public:
+    Object(const char *filename);
+    Object(const char *filename, const char *texFilename);
+    ~Object(void);
 
-        void render(glm::mat4 model, glm::mat4 view,
-                    glm::mat4 projection, GLuint programID);
+    void render(glm::mat4 model, glm::mat4 view,
+        glm::mat4 projection, GLuint programID);
 
-    private:
-        void bindVertexBuffer();
-        void bindNormalBuffer();
-        void bindUvBuffer();
-        void sendMVP(glm::mat4 model, glm::mat4 view,
-                     glm::mat4 projection, GLuint programID);
+private:
+    void bindVertexBuffer();
+    void bindNormalBuffer();
+    void bindUvBuffer();
+    void sendMVP(glm::mat4 model, glm::mat4 view,
+     glm::mat4 projection, GLuint programID);
 };
 
 #endif
