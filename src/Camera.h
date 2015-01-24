@@ -8,8 +8,6 @@
 
 class Camera
 {
-
-
     glm::vec3 position;
     glm::vec3 direction;
     glm::vec3 right;
@@ -24,7 +22,7 @@ class Camera
     double vert_angle; 
 
     double mouseSpeed;
-    
+    double deltaTime;
 
 public:
     bool key_up;
@@ -34,8 +32,6 @@ public:
 
     GLFWwindow *window;
 
-    double deltaTime;
-
 public:
 
     Camera(GLFWwindow *window, glm::vec3 position, double window_width, double window_height);
@@ -43,8 +39,8 @@ public:
 
     void handleMouseMove(GLFWwindow *window, double mouse_x, double mouse_y);
     const double toRads(const double &angleInDegrees) const;
-    void move(double deltaTime);
-    void moveOnPlaneXY(double deltaTime);
+    void move();
+    void moveOnPlaneXY();
 
     glm::vec3 getPosition() const;
     double getXPos() const;
@@ -60,6 +56,11 @@ public:
 
     float getDistanceTo(glm::vec3 worldCoords) const;
 
+    void setDeltaTime(float delta);
+    float getDeltaTime() const;
+
+    void setDirection(glm::vec3 newDirection);
+    void setDirection(float vert, float hor);
 private:
     void initialize(glm::vec3 position, double window_width, double window_height);
 

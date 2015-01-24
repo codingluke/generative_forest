@@ -192,13 +192,19 @@ int main(void)
 		fprintf(stderr, "Failed to initialize GLEW\n");
 		return -1;
 	}
+
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	glfwSetCursorPos(window, window_width / 2., window_height / 2.);
-	camera = new Camera(window, vec3(0.0, 0.0, 0.0), window_width, window_height);
-    // std::cout << to_string(camera->getPosition()) << std::endl;
-	// Auf Keyboard-Events reagieren
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetCursorPosCallback(window, handleMouseMove);
+	glfwSetCursorPos(window, window_width / 2., window_height / 2.);
+	camera = new Camera(window, glm::vec3(-1.5, 0.07, -1.4), window_width, window_height);
+	camera->setDirection(0.0, 0.7);
+	
+
+	
+    // std::cout << to_string(camera->getPosition()) << std::endl;
+	// Auf Keyboard-Events reagieren
+	
 	// Dark blue background
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glEnable(GL_DEPTH_TEST);
@@ -220,8 +226,7 @@ int main(void)
 
 	glm::mat4 lightTransformation(1.0);
 
-	float currentTime = 0.0;
-	float lastTime = 0.0;
+	
 
   // Make Perlin Noise, might need some tweaking.
 	unsigned int seed = floor(double(random() * 250));
@@ -248,13 +253,14 @@ int main(void)
 
 	// Eventloop
 	glm::mat4 Save = Model;
-  Frustum frustum;
+	Frustum frustum;
+	float lastTime = 0.0;
 	while (!glfwWindowShouldClose(window))
 	{
 		// Calculate the processing time for the last frame
-		currentTime = glfwGetTime();
-		camera->deltaTime = currentTime - lastTime;
-		camera->moveOnPlaneXY(currentTime - lastTime);
+		float currentTime = glfwGetTime();
+		camera->setDeltaTime(currentTime - lastTime);
+		camera->moveOnPlaneXY();
 		lastTime = currentTime;
 		// Clear the screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -263,19 +269,19 @@ int main(void)
     //                     display range : 0.1 unit <-> 100 units
 		// Transformationsmatrix!
 		Projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
-    frustum.setCamInternals(60.0f, 4.0f / 3.0f, 0.1f, 100.0f);
+		frustum.setCamInternals(60.0f, 4.0f / 3.0f, 0.1f, 100.0f);
 
 		// Camera matrix
 		// Transformationsmatrix!
-    glm::vec3 cam_position = camera->getPosition();
-	  glUniform3f(glGetUniformLocation(programID, "LightPosition_worldspace"), cam_position.x, cam_position.y, cam_position.z);
-    glm::vec3 cam_direction = camera->getDirection();
-    glm::vec3 cam_up = camera->getUp();
-    glm::vec3 l = cam_position + cam_direction;
+		glm::vec3 cam_position = camera->getPosition();
+		glUniform3f(glGetUniformLocation(programID, "LightPosition_worldspace"), cam_position.x, cam_position.y, cam_position.z);
+		glm::vec3 cam_direction = camera->getDirection();
+		glm::vec3 cam_up = camera->getUp();
+		glm::vec3 l = cam_position + cam_direction;
 		View = glm::lookAt(cam_position, // Camera is at (0,0,-5), in World Space
 						   l,  // and looks at the origin
 						   cam_up); // Head is up (set to 0,-1,0 to look upside-down)
-    frustum.setCamDef(cam_position, l, cam_up);
+		frustum.setCamDef(cam_position, l, cam_up);
 
 		// Model matrix : an identity matrix (model will be at the origin)
 		// Transfromationsmatrix!
@@ -290,39 +296,39 @@ int main(void)
     //head.render(Model, View, Projection, programID);
 
 		Model = Save;
-    Model = glm::scale(Model, vec3(4.0f, 0.009f, 4.0f));
-    Model = glm::translate(Model, vec3(0.7f, 0.0f, 0.7f));
-    sendMVP();
-    drawCube();
+		Model = glm::scale(Model, vec3(4.0f, 0.009f, 4.0f));
+		Model = glm::translate(Model, vec3(0.7f, 0.0f, 0.7f));
+		sendMVP();
+		drawCube();
     //glDeleteTextures(1, &texture);
 		Model = Save;
 
-    tree.render(Model, View, Projection, programID);
+		tree.render(Model, View, Projection, programID);
 
     // Zeichne Wald
-    float scale = 0.0f;
-    for (int row = 0; row < 100; row++) {
-      for (int col = 0; col < 100; col++) {
-        if (forest[row][col] > 0) {
-          Save2 = Model;
-          glm::vec3 position = extractWorldCoords(Model) + glm::vec3(0.0, 0.15, 0.0);
-          float dist = camera->getDistanceTo(position);
-          Model = glm::rotate(Model, -90.0f, glm::vec3(1, 0, 0));
-          scale = forest[row][col];
-          Model = glm::scale(Model, glm::vec3(scale, scale, scale));
-          if (scale > 0 && frustum.pointInFrustum(position)) {
-            if (dist < 1) {
-              tree.render(Model, View, Projection, programID);
-            } else if (dist < 6) {
-              treeLow.render(Model, View, Projection, programID);
-            }
-          }
-          Model = Save2;
-        }
-        Model = glm::translate(Model, glm::vec3(0.0, 0.0, 0.2));
-      }
-      Model = glm::translate(Model, glm::vec3(0.2, 0.0, -20.0));
-    }
+		float scale = 0.0f;
+		for (int row = 0; row < 100; row++) {
+			for (int col = 0; col < 100; col++) {
+				if (forest[row][col] > 0) {
+					Save2 = Model;
+					glm::vec3 position = extractWorldCoords(Model) + glm::vec3(0.0, 0.15, 0.0);
+					float dist = camera->getDistanceTo(position);
+					Model = glm::rotate(Model, -90.0f, glm::vec3(1, 0, 0));
+					scale = forest[row][col];
+					Model = glm::scale(Model, glm::vec3(scale, scale, scale));
+					if (scale > 0 && frustum.pointInFrustum(position)) {
+						if (dist < 1) {
+							tree.render(Model, View, Projection, programID);
+						} else if (dist < 6) {
+							treeLow.render(Model, View, Projection, programID);
+						}
+					}
+					Model = Save2;
+				}
+				Model = glm::translate(Model, glm::vec3(0.0, 0.0, 0.2));
+			}
+			Model = glm::translate(Model, glm::vec3(0.2, 0.0, -20.0));
+		}
 
 		//lightTransformation = glm::translate(Model, glm::vec3(0.0, 0.3, 0.0));
 		//lightPos = lightTransformation * glm::vec4(0,0,0,1);
