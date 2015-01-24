@@ -210,9 +210,9 @@ int main(void)
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
-	Object treeLow("Content/trees9/tree_1_low.3ds", "Content/trees9/Bark___1.bmp");
-	Object tree("Content/trees9/tree_1_mid.3ds", "Content/trees9/Bark___0.bmp");
-	Object treeHigh("Content/trees9/tree_1.3ds", "Content/trees9/Bark___0.bmp");
+	Object treeLow("Content/trees9/tree_1_low_new.3ds", "Content/trees9/Bark___1.bmp");
+	Object treeMid("Content/trees9/tree_1_mid_new.3ds", "Content/trees9/Bark___0.bmp");
+	Object treeHigh("Content/trees9/tree_1_high_new.3ds", "Content/trees9/Bark___0.bmp");
 
 	// Create and compile our GLSL program from the shaders
 	programID = LoadShaders("Content/StandardShading.vertexshader",
@@ -303,7 +303,7 @@ int main(void)
     //glDeleteTextures(1, &texture);
 		Model = Save;
 
-		tree.render(Model, View, Projection, programID);
+		// treeHigh.render(Model, View, Projection, programID);
 
     // Zeichne Wald
 
@@ -319,7 +319,9 @@ int main(void)
 					Model = glm::scale(Model, glm::vec3(scale, scale, scale));
 					if (scale > 0 && frustum.pointInFrustum(position)) {
 						if (dist < 1) {
-							tree.render(Model, View, Projection, programID);
+							treeHigh.render(Model, View, Projection, programID);
+						} else if (dist < 3) {
+							treeMid.render(Model, View, Projection, programID);
 						} else if (dist < 6) {
 							treeLow.render(Model, View, Projection, programID);
 						}
