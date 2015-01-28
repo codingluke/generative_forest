@@ -12,26 +12,56 @@ SET(${PROJECT_NAME}_PATCH_LEVEL 0)
 SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake/Modules/" ${CMAKE_MODULE_PATH})
 
 # Look for ASSIMP
-find_package(ASSIMP REQUIRED)
-include_directories(${ASSIMP_INCLUDE_DIRS})
+#find_package(ASSIMP REQUIRED)
+#include_directories(${ASSIMP_INCLUDE_DIRS})
 
 # Look for OpenGL.
 find_package(OpenGL REQUIRED)
 
 # Look for GLFW.
-find_package(GLFW REQUIRED)
-include_directories(${GLFW_INCLUDE_DIR})
+#find_package(GLFW REQUIRED)
+#include_directories(${GLFW_INCLUDE_DIR})
 
 # Look for GLEW.
-find_package(GLEW REQUIRED)
-include_directories(${GLEW_INCLUDE_DIR})
+#find_package(GLEW REQUIRED)
+#include_directories(${GLEW_INCLUDE_DIR})
+
+# Compile external dependencies 
+add_subdirectory (external)
+
+# On Visual 2005 and above, this module can set the debug working directory
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/external/rpavlik-cmake-modules-1c73e35")
+include(CreateLaunchers)
+include(MSVCMultipleProcessCompile) # /MP
+
+if(INCLUDE_DISTRIB)
+	add_subdirectory(distrib)
+endif(INCLUDE_DISTRIB)
+
+include_directories(
+  external/glfw-3.0.3/include/GLFW/
+	external/glew-1.9.0/include/
+	external/assimp-3.0.1270/include/
+	.
+)
 
 # Set necessary libs.
 set(OPENGLEXAMPLES_REQUIRED_LIBS
-	${GLFW_LIBRARIES}
-	${GLEW_LIBRARIES}
+	#${GLFW_LIBRARIES}
+	#${GLEW_LIBRARIES}
 	${OPENGL_LIBRARY}
-	${ASSIMP_LIBRARIES}
+	GLFW_303
+	GLEW_190
+	assimp
+	#${ASSIMP_LIBRARIES}
+)
+
+add_definitions(
+	-DTW_STATIC
+	-DTW_NO_LIB_PRAGMA
+	-DTW_NO_DIRECT3D
+	-DGLEW_STATIC
+	-D_CRT_SECURE_NO_WARNINGS
 )
 
 # Set binaries output folder.
@@ -53,6 +83,11 @@ ENDIF(MSVC)
 
 # Add main target.
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/External)
+
+
+
+
+
 file(COPY Content DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 add_subdirectory(src)
 

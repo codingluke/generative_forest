@@ -7,7 +7,7 @@
 #include <GL/glew.h>
 
 // Include GLFW
-#include <GLFW/glfw3.h>
+#include <glfw3.h>
 
 // Include GLM
 #include <glm/glm.hpp>
@@ -114,7 +114,7 @@ void sendMVP()
 	glUniformMatrix4fv(glGetUniformLocation(programID, "V"), 1, GL_FALSE, &View[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(programID, "P"), 1, GL_FALSE, &Projection[0][0]);
 
-	// ModelViewProjection 
+	// ModelViewProjection
 	glm::mat4 MVP = Projection * View * Model;
 	// Send our transformation to the currently bound shader,
 	// in the "MVP" uniform, konstant fuer alle Eckpunkte
@@ -146,7 +146,7 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-	
+
 	int window_width = 1024;
 	int window_height = 768;
 	GLFWwindow* window = glfwCreateWindow(window_width, // Breite
@@ -175,9 +175,9 @@ int main(void)
 	glfwSetCursorPos(window, window_width / 2., window_height / 2.);
 	// camera = new Camera(window, glm::vec3(-1.5, 0.07, -1.4), window_width, window_height);
 	camera = new Camera(window, glm::vec3(1.5, 0.11, 1.4), window_width, window_height);
-	
+
 	camera->setDirection(0.00001, 0.7);
-	
+
 	// Black background
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glEnable(GL_DEPTH_TEST);
@@ -192,7 +192,7 @@ int main(void)
 	// Create and compile GLSL program from the shaders
 	programID = LoadShaders("Content/StandardShading.vertexshader",
 		"Content/StandardShading.fragmentshader");
-	
+
 	glUseProgram(programID);
 
 	// Set up light
@@ -221,7 +221,7 @@ int main(void)
 				forest[row][col] = -1;
 		}
 	}
-	
+
 	glm::mat4 Save;
 	glm::mat4 Save2;
 	Frustum frustum;
@@ -261,33 +261,33 @@ int main(void)
 		Model = glm::mat4(1.0f);
 		Save = Model;
 		Save2 = Model;
-		
+
 		// Draw ground
 		Model = Save;
 		for (int row = 0; row < 100; row++) {
 			for (int col = 0; col < 100; col++) {
-				
+
 					Save2 = Model;
 					glm::vec3 position = extractWorldCoords(Model) + glm::vec3(0.0, 0.15, 0.0);
 					float dist = camera->getDistanceTo(position);
 					Model = glm::translate(Model, vec3(0.0f, 0.003f, 0.0f));
 					Model = glm::rotate(Model, 90.0f, glm::vec3(1, 0, 0));
 					Model = glm::scale(Model, vec3(0.1f, 0.1f, 0.f));
-					
-					if (dist < 4) 
+
+					if (dist < 4)
 					{
 							tile.render(Model, View, Projection, programID);
 					}
-					
+
 					Model = Save2;
-				
+
 				Model = glm::translate(Model, glm::vec3(0.0, 0.0, 0.2));
 			}
 			Model = glm::translate(Model, glm::vec3(0.2, 0.0, -20.0));
 		}
 		// Model = glm::translate(Model, vec3(0.7f, 0.0f, 0.7f));
-		
-		
+
+
 		//sendMVP();
 		//drawCube();
 		// tile.render(Model, View, Projection, programID);
